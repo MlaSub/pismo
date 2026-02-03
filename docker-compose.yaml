@@ -1,0 +1,30 @@
+services:
+  database:
+    image: "postgres:latest"
+    env_file:
+      - .env.development
+    ports:
+      - "5439:5432"
+    volumes:
+      - db_data:/var/lib/postgresql
+
+  backend:
+    build:
+      context: .
+      dockerfile: ./dockerfiles/backend.dockerfile
+    env_file:
+      - .env.development
+    ports:
+      - "8000:8000"
+    depends_on:
+      - database
+    command:
+      - "fastapi"
+      - dev
+      - app/main.py
+      - "--host"
+      - "0.0.0.0"
+    volumes:
+      - ./backend:/app
+volumes:
+  db_data:
