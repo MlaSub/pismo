@@ -2,7 +2,13 @@ from typing import Union
 
 from fastapi import FastAPI
 
+from .database.database import Base, engine
+from .database import entities
+
+
 app = FastAPI()
+
+entities.Base.metadata.create_all(bind=engine)
 
 
 @app.get("/")

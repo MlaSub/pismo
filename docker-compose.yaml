@@ -14,16 +14,18 @@ services:
       dockerfile: ./dockerfiles/backend.dockerfile
     env_file:
       - .env.development
+    environment:
+      - PYTHONPATH=/app
     ports:
       - "8000:8000"
     depends_on:
       - database
     command:
       - "fastapi"
-      - dev
-      - app/main.py
+      - "dev"
       - "--host"
       - "0.0.0.0"
+      - "app/main.py"
     volumes:
       - ./backend:/app
 volumes:
