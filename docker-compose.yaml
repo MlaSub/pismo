@@ -28,5 +28,8 @@ services:
       - "app/main.py"
     volumes:
       - ./backend:/app
+      - email_pdfs:/app/email_pdfs
+
 volumes:
   db_data:
+  email_pdfs:

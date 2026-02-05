@@ -1,0 +1,53 @@
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+fix = true
+
+exclude = [".git", ".venv", "venv", "__pycache__", ".pytest_cache"]
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "N",
+    "UP",
+    "B",
+    "C4",
+    "SIM",
+    "TCH",
+    "Q",
+    "RET",
+    "ARG",
+    "PTH",
+    "ERA",
+    "PL",
+    "ASYNC",
+    "S",
+]
+
+ignore = ["E501", "PLR0913", "ARG002", "B008", "N999"]
+
+fixable = ["ALL"]
+unfixable = []
+
+[tool.ruff.lint.pycodestyle]
+max-line-length = 88
+
+[tool.ruff.lint.pylint]
+max-args = 10
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["PLR2004", "S101", "ARG"]
+"__init__.py" = ["F401", "F403"]
+"alembic/versions/*.py" = ["E501", "PLR"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["app"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
