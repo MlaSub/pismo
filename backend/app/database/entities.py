@@ -12,6 +12,13 @@ class FeedbackOrigin(StrEnum):
     LLM = "llm"
 
 
+class EssayProcessingStatus(StrEnum):
+    PENDING = "pending"
+    PROCESSING = "processing"
+    COMPLETED = "completed"
+    ERROR = "error"
+
+
 class TimestampMixin:
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
@@ -26,6 +33,7 @@ class User(TimestampMixin, Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     username: Mapped[str] = mapped_column(unique=True, index=True)
+    uuid: Mapped[str | None]
 
     def __repr__(self) -> str:
         return f"<User(id={self.id}, username={self.username})>"
@@ -37,7 +45,6 @@ class Essay(TimestampMixin, Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
     title: Mapped[str] = mapped_column(index=True)
-    raw_content: Mapped[str]
     original_content: Mapped[str | None]
     analyzed_content: Mapped[str | None]
     cerf_level_grade: Mapped[str | None]
@@ -74,3 +81,15 @@ class Feedback(TimestampMixin, Base):
 
     def __repr__(self) -> str:
         return f"<Feedback(id={self.id}, essay_analysis_id={self.essay_analysis_id}, feedback_origin={self.feedback_origin})>"
+
+
+class EssayProcessingQueue(TimestampMixin, Base):
+    __tablename__ = "essay_processing_queue"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    essay_id: Mapped[int | None] = mapped_column(
+        ForeignKey("essays.id", ondelete="CASCADE")
+    )
+    status: Mapped[EssayProcessingStatus]
+    raw_content: Mapped[str]
+    document_path: Mapped[str | None]
