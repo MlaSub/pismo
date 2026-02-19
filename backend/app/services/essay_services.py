@@ -1,6 +1,6 @@
 from ..database.database import get_db
 from ..database.entities import Essay, EssayProcessingQueue, EssayProcessingStatus
-from ..database.helpers import single_entry_to_db
+from ..database.helpers import single_entry_to_db, update_by_id
 from .helpers.files_services import extract_text_from_pdf
 from .helpers.text_extractors import extract_email_subject
 
@@ -31,24 +31,20 @@ def create_or_update_essay(
     essay_id: int | None = None,
 ) -> Essay:
     if essay_id:
-        with get_db() as db:
-            essay = (
-                db.query(Essay)
-                .filter(Essay.id == essay_id, Essay.user_id == user_id)
-                .first()
-            )
-            if not essay:
-                raise ValueError(
-                    f"Essay with id {essay_id} not found for user {user_id}"
-                )
-            essay.title = title
-            essay.original_content = original_content
-            essay.analyzed_content = analyzed_content
-            essay.cerf_level_grade = cerf_level_grade
-            essay.document_path = document_path
-            db.commit()
-            db.refresh(essay)
-            return essay
+        essay = update_by_id(
+            Essay,
+            essay_id,
+            {
+                "title": title,
+                "original_content": original_content,
+                "analyzed_content": analyzed_content,
+                "cerf_level_grade": cerf_level_grade,
+                "document_path": document_path,
+            },
+        )
+        if not essay:
+            raise ValueError(f"Essay with id {essay_id} not found for user {user_id}")
+        return essay
 
     existing_essay = get_essay_by_title_and_user(essay_title=title, user_id=user_id)
     if existing_essay:

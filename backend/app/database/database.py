@@ -1,5 +1,5 @@
-from contextlib import contextmanager
 from collections.abc import Generator
+from contextlib import contextmanager
 
 from sqlalchemy import URL, create_engine
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
@@ -16,7 +16,6 @@ database_url = URL.create(
     query={"sslmode": "require"} if settings.enviroment != "development" else {},
 )
 
-print(f"Connecting to database at {database_url}")
 
 engine = create_engine(database_url, connect_args={"prepare_threshold": None})
 

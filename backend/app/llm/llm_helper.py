@@ -1,12 +1,11 @@
 import httpx
+from groq import AsyncGroq
 
 from ..config import settings
 
 
-async def chat_with_model(prompt: str) -> str:
-    """Local dev only — uses Ollama's response format, not compatible with OpenAI/Groq/Mistral APIs."""
+async def _chat_ollama(prompt: str) -> str:
     async with httpx.AsyncClient() as client:
-        print("Sending prompt to LLM:", prompt)
         response = await client.post(
             settings.llm_chat_url,
             json={
@@ -15,11 +14,24 @@ async def chat_with_model(prompt: str) -> str:
                 "stream": False,
                 "options": {"num_thread": settings.llm_num_threads},
             },
-            timeout=120.0,
+            timeout=300.0,
         )
-        print("LLM response status code:", response.status_code)
-        print("LLM response content:", response.text)
         data = response.json()
         if "message" not in data:
             raise ValueError(f"Unexpected Ollama response: {data}")
         return data["message"]["content"]
+
+
+async def _chat_groq(prompt: str) -> str:
+    client = AsyncGroq(api_key=settings.groq_api_key)
+    chat_completion = await client.chat.completions.create(
+        messages=[{"role": "user", "content": prompt}],
+        model=settings.llm_model,
+    )
+    return chat_completion.choices[0].message.content
+
+
+async def chat_with_model(prompt: str) -> str:
+    if settings.llm_provider == "groq":
+        return await _chat_groq(prompt)
+    return await _chat_ollama(prompt)
