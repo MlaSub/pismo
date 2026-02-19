@@ -67,8 +67,8 @@ class EssayAnalysis(TimestampMixin, Base):
         return f"<EssayAnalysis(id={self.id}, essay_id={self.essay_id})>"
 
 
-class Feedback(TimestampMixin, Base):
-    __tablename__ = "feedback"
+class AnalysisItem(TimestampMixin, Base):
+    __tablename__ = "analysis_items"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
@@ -76,7 +76,7 @@ class Feedback(TimestampMixin, Base):
         ForeignKey("essay_analyses.id", ondelete="CASCADE")
     )
     feedback_origin: Mapped[FeedbackOrigin]
-    feedback_type: Mapped[str]
+    short_mistake_summary: Mapped[str]
     comments: Mapped[str | None]
 
     def __repr__(self) -> str:
@@ -91,5 +91,9 @@ class EssayProcessingQueue(TimestampMixin, Base):
         ForeignKey("essays.id", ondelete="CASCADE")
     )
     status: Mapped[EssayProcessingStatus]
+    retries: Mapped[int] = mapped_column(default=0)
     raw_content: Mapped[str]
     document_path: Mapped[str | None]
+
+    def __repr__(self) -> str:
+        return f"<EssayProcessingQueue(id={self.id}, essay_id={self.essay_id}, status={self.status})>"
