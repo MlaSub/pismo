@@ -7,6 +7,10 @@
   "lint-staged": {
     "mobile/**/*.{js,jsx,ts,tsx}": [
       "eslint --fix"
+    ],
+    "backend/**/*.py": [
+      "ruff check --fix",
+      "ruff format"
     ]
   },
   "devDependencies": {
