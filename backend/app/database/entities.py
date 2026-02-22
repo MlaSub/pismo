@@ -2,6 +2,7 @@ import datetime
 from enum import StrEnum
 
 from sqlalchemy import DateTime, ForeignKey, func
+from sqlalchemy import Enum as SAEnum
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .database import Base
@@ -15,8 +16,35 @@ class FeedbackOrigin(StrEnum):
 class EssayProcessingStatus(StrEnum):
     PENDING = "pending"
     PROCESSING = "processing"
+    READY_FOR_FEEDBACK_EXTRACTION = "ready_for_feedback_extraction"
+    FEEDBACK_EXTRACTION = "feedback_extraction"
     COMPLETED = "completed"
     ERROR = "error"
+
+
+class CefrLevel(StrEnum):
+    A1 = "A1"
+    A2 = "A2"
+    B1 = "B1"
+    B2 = "B2"
+    C1 = "C1"
+    C2 = "C2"
+
+
+class AnalysisCategory(StrEnum):
+    GRAMMAR = "grammar"
+    VOCABULARY = "vocabulary"
+    PUNCTUATION = "punctuation"
+    SPELLING = "spelling"
+    STYLE = "style"
+    STRUCTURE = "structure"
+    TASK_RESPONSE = "task_response"
+
+
+class Confidence(StrEnum):
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
 
 
 class TimestampMixin:
@@ -34,6 +62,9 @@ class User(TimestampMixin, Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     username: Mapped[str] = mapped_column(unique=True, index=True)
     uuid: Mapped[str | None]
+    target_cefr_level: Mapped[CefrLevel | None] = mapped_column(
+        SAEnum(CefrLevel, name="cefrlevel", create_type=False), nullable=True
+    )
 
     def __repr__(self) -> str:
         return f"<User(id={self.id}, username={self.username})>"
@@ -47,7 +78,9 @@ class Essay(TimestampMixin, Base):
     title: Mapped[str] = mapped_column(index=True)
     original_content: Mapped[str | None]
     analyzed_content: Mapped[str | None]
-    cerf_level_grade: Mapped[str | None]
+    cerf_level_grade: Mapped[CefrLevel | None] = mapped_column(
+        SAEnum(CefrLevel, name="cefrlevel", create_type=False), nullable=True
+    )
     document_path: Mapped[str | None]
 
     def __repr__(self) -> str:
@@ -61,32 +94,34 @@ class EssayAnalysis(TimestampMixin, Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
     essay_id: Mapped[int] = mapped_column(ForeignKey("essays.id", ondelete="CASCADE"))
     analysis_result: Mapped[str]
+    confidence: Mapped[Confidence]
     recommendations: Mapped[str | None]
 
     def __repr__(self) -> str:
         return f"<EssayAnalysis(id={self.id}, essay_id={self.essay_id})>"
 
 
-class AnalysisItem(TimestampMixin, Base):
-    __tablename__ = "analysis_items"
+class FeedbackItem(TimestampMixin, Base):
+    __tablename__ = "feedback_items"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
-    essay_analysis_id: Mapped[int] = mapped_column(
-        ForeignKey("essay_analyses.id", ondelete="CASCADE")
-    )
+    essay_id: Mapped[int] = mapped_column(ForeignKey("essays.id", ondelete="CASCADE"))
     feedback_origin: Mapped[FeedbackOrigin]
+    category: Mapped[AnalysisCategory]
     short_mistake_summary: Mapped[str]
     comments: Mapped[str | None]
 
     def __repr__(self) -> str:
-        return f"<Feedback(id={self.id}, essay_analysis_id={self.essay_analysis_id}, feedback_origin={self.feedback_origin})>"
+        return f"<Feedback(id={self.id}, essay_id={self.essay_id}, feedback_origin={self.feedback_origin})>"
 
 
 class EssayProcessingQueue(TimestampMixin, Base):
     __tablename__ = "essay_processing_queue"
 
     id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+
     essay_id: Mapped[int | None] = mapped_column(
         ForeignKey("essays.id", ondelete="CASCADE")
     )

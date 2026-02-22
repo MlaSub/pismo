@@ -1,5 +1,11 @@
 from ..database.database import get_db
-from ..database.entities import Essay, EssayProcessingQueue, EssayProcessingStatus
+from ..database.entities import (
+    Essay,
+    EssayAnalysis,
+    EssayProcessingQueue,
+    EssayProcessingStatus,
+    FeedbackItem,
+)
 from ..database.helpers import single_entry_to_db, update_by_id
 from .helpers.files_services import extract_text_from_pdf
 from .helpers.text_extractors import extract_email_subject
@@ -10,6 +16,40 @@ class EssayAlreadyExistsError(Exception):
         self.essay_id = essay_id
         self.user_id = user_id
         super().__init__(f"Essay with id {essay_id} already exists for this user")
+
+
+def get_essay_detail(essay_id: int, user_id: int) -> dict | None:
+    with get_db() as db:
+        essay = (
+            db.query(Essay)
+            .filter(Essay.id == essay_id, Essay.user_id == user_id)
+            .first()
+        )
+        if not essay:
+            return None
+        queue_entry = (
+            db.query(EssayProcessingQueue)
+            .filter(EssayProcessingQueue.essay_id == essay_id)
+            .order_by(EssayProcessingQueue.created_at.desc())
+            .first()
+        )
+        analysis = (
+            db.query(EssayAnalysis).filter(EssayAnalysis.essay_id == essay_id).first()
+        )
+        feedback_items = (
+            db.query(FeedbackItem).filter(FeedbackItem.essay_id == essay_id).all()
+        )
+        return {
+            "essay": essay,
+            "processing_status": queue_entry.status if queue_entry else None,
+            "analysis": analysis,
+            "feedback_items": feedback_items,
+        }
+
+
+def get_essays_by_user(user_id: int) -> list[Essay]:
+    with get_db() as db:
+        return db.query(Essay).filter(Essay.user_id == user_id).all()
 
 
 def get_essay_by_title_and_user(essay_title: str, user_id: int) -> Essay | None:
@@ -63,11 +103,15 @@ def create_or_update_essay(
 
 
 def register_essay_for_processing(
-    essay_id: int | None, raw_content: str, document_path: str | None = None
+    user_id: int,
+    essay_id: int | None,
+    raw_content: str,
+    document_path: str | None = None,
 ):
     return single_entry_to_db(
         EssayProcessingQueue,
         {
+            "user_id": user_id,
             "essay_id": essay_id,
             "status": EssayProcessingStatus.PENDING,
             "raw_content": raw_content,
@@ -83,6 +127,9 @@ def starting_essay_processing(user_id: int, file_path: str):
         user_id=user_id, title=essay_title, document_path=file_path
     )
     essay_process = register_essay_for_processing(
-        essay_id=essay.id, raw_content=file_content, document_path=file_path
+        user_id=user_id,
+        essay_id=essay.id,
+        raw_content=file_content,
+        document_path=file_path,
     )
     return essay_process.id

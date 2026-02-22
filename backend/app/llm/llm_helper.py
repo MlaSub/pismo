@@ -31,6 +31,14 @@ async def _chat_groq(prompt: str) -> str:
     return chat_completion.choices[0].message.content
 
 
+def extract_json_from_response(response: str) -> str:
+    response = response.strip()
+    if response.startswith("```"):
+        response = response.split("\n", 1)[1]
+        response = response.rsplit("```", 1)[0]
+    return response.strip()
+
+
 async def chat_with_model(prompt: str) -> str:
     if settings.llm_provider == "groq":
         return await _chat_groq(prompt)

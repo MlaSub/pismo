@@ -12,25 +12,35 @@ Consider the following when assessing:
 
 The CEFR level must be one of the following values exactly: "A1", "A2", "B1", "B2", "C1", "C2". "C2" represents near-native proficiency, while "A1" indicates a beginner level.
 
+The recommendation should be a specific, actionable piece of advice that the learner can follow to improve their writing and progress to the desired CEFR level: {target_cefr_level}.
+
 Return ONLY a valid JSON object with no extra text, no markdown, no code blocks:
 
-{
+{{
   "cefr_level": "...",
   "confidence": "high | medium | low",
-  "reasoning": "..."
-}
+  "reasoning": "...",
+  "recommendation": "..."
+}}
 
 Texts to analyze:
 <original_content>
-%s
+{original_content}
 </original_content>
 
 <analyzed_content>
-%s
-</analyzed_content>"""
+{analyzed_content}
+</analyzed_content>
+"""
 
 
 def get_cerf_level_extraction_prompt(
-    original_content: str, analyzed_content: str
+    original_content: str,
+    analyzed_content: str,
+    target_cefr_level: str,
 ) -> str:
-    return CERF_LEVEL_EXTRACTION_PROMPT % (original_content, analyzed_content)
+    return CERF_LEVEL_EXTRACTION_PROMPT.format(
+        original_content=original_content,
+        analyzed_content=analyzed_content,
+        target_cefr_level=target_cefr_level,
+    )

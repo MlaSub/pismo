@@ -1,21 +1,6 @@
-from enum import StrEnum
-
 from pydantic import BaseModel
 
-
-class CefrLevel(StrEnum):
-    A1 = "A1"
-    A2 = "A2"
-    B1 = "B1"
-    B2 = "B2"
-    C1 = "C1"
-    C2 = "C2"
-
-
-class Confidence(StrEnum):
-    LOW = "low"
-    MEDIUM = "medium"
-    HIGH = "high"
+from ..database.entities import AnalysisCategory, CefrLevel, Confidence
 
 
 class EssayExtractionResponse(BaseModel):
@@ -27,3 +12,14 @@ class CerfLevelResponse(BaseModel):
     cefr_level: CefrLevel
     confidence: Confidence
     reasoning: str
+    recommendation: str
+
+
+class FeedbackItem(BaseModel):
+    category: AnalysisCategory
+    short_mistake_summary: str
+    comments: str | None
+
+
+class FeedbackItemResponse(BaseModel):
+    feedback_items: list[FeedbackItem]

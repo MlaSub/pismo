@@ -16,6 +16,20 @@ def single_entry_to_db[T: Base](model: type[T], data: dict) -> T:
             raise
 
 
+def bulk_entries_to_db[T: Base](model: type[T], data: list[dict]) -> list[T]:
+    with get_db() as db:
+        try:
+            entries = [model(**item) for item in data]
+            db.add_all(entries)
+            db.commit()
+            for entry in entries:
+                db.refresh(entry)
+            return entries
+        except SQLAlchemyError:
+            db.rollback()
+            raise
+
+
 def get_ids_by_status[T: Base](
     model: type[T], status_field: str, status_value: str
 ) -> list[int]:
