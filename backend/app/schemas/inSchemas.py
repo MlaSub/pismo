@@ -6,5 +6,9 @@ class UserCreate(BaseModel):
     name: str | None = None
 
 
+class UserLogin(BaseModel):
+    username: str
+
+
 class EssayDetailRequest(BaseModel):
     essay_id: int

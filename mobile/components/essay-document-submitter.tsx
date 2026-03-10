@@ -14,7 +14,7 @@ type SubmitStatus = 'idle' | 'loading' | 'success' | 'error';
 
 export function EssayDocumentSubmitter() {
     const uuid = useUserDataStore((state) => state.uuid);
-    const name = useUserDataStore((state) => state.name);
+    const username = useUserDataStore((state) => state.username);
     const errorColor = useThemeColor({}, 'error');
     const tintColor = useThemeColor({}, 'tint');
     const successColor = useThemeColor({}, 'success');
@@ -49,7 +49,7 @@ export function EssayDocumentSubmitter() {
         void submit(file.uri, file.name, file.mimeType);
     }, [submit]);
 
-    if (uuid === null || name === null) {
+    if (uuid === null || username === null) {
         return <ThemedText style={[styles.message, { color: errorColor }]}>User data is missing. Document cannot be shared.</ThemedText>;
     }
 

@@ -4,17 +4,21 @@ import uuidGenerator from 'react-native-uuid'
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 
+import { createUser } from '../utils/createUser'
+import { loginUser } from '../utils/loginUser'
+
 const UUID_KEY = 'user-uuid'
 
 interface UserDataState {
     uuid: string | null
-    name: string | null
+    username: string | null
     hydrated: boolean
     hasUuid: () => boolean
-    getName: () => string | null
+    getUsername: () => string | null
     getUuid: () => string | null
-    createUuid: () => Promise<void>
-    setName: (name: string) => void
+    setUsername: (username: string) => void
+    registerUser: (username: string) => Promise<void>
+    loginWithUuid: (uuid: string, username: string) => Promise<void>
     clearAll: () => Promise<void>
     setUuid: (uuid: string | null) => void
 }
@@ -23,28 +27,46 @@ export const useUserDataStore = create<UserDataState>()(
     persist(
         (set, get) => ({
             uuid: null,
-            name: null,
+            username: null,
             hydrated: false,
             hasUuid: () => get().uuid !== null,
-            getName: () => get().name,
+            getUsername: () => get().username,
             getUuid: () => get().uuid,
             setUuid: (uuid) => set({ uuid }),
-            createUuid: async () => {
+            setUsername: (username) => set({ username }),
+            registerUser: async (username) => {
                 const newUuid = uuidGenerator.v4() as string
                 await SecureStore.setItemAsync(UUID_KEY, newUuid)
-                set({ uuid: newUuid })
+                set({ uuid: newUuid, username })
+                try {
+                    await createUser({ username })
+                } catch (error) {
+                    await SecureStore.deleteItemAsync(UUID_KEY)
+                    set({ uuid: null, username: null })
+                    throw error
+                }
             },
-            setName: (name) => set({ name }),
+            loginWithUuid: async (uuid, username) => {
+                await SecureStore.setItemAsync(UUID_KEY, uuid)
+                set({ uuid, username })
+                try {
+                    await loginUser({ username })
+                } catch (error) {
+                    await SecureStore.deleteItemAsync(UUID_KEY)
+                    set({ uuid: null, username: null })
+                    throw error
+                }
+            },
             clearAll: async () => {
                 await SecureStore.deleteItemAsync(UUID_KEY)
                 await AsyncStorage.removeItem('user-data')
-                set({ uuid: null, name: null })
+                set({ uuid: null, username: null })
             },
         }),
         {
             name: 'user-data',
             storage: createJSONStorage(() => AsyncStorage),
-            partialize: (state) => ({ name: state.name }),
+            partialize: (state) => ({ username: state.username }),
             onRehydrateStorage: () => () => {
                 void SecureStore.getItemAsync(UUID_KEY).then((stored) => {
                     useUserDataStore.setState({ uuid: stored ?? null, hydrated: true })

@@ -6,9 +6,9 @@ from pydantic import BaseModel
 class EssayResponse(BaseModel):
     id: int
     title: str
-    cerf_level_grade: str | None
-    original_content: str | None
-    analyzed_content: str | None
+    cerf_level_grade: str | None = None
+    original_content: str | None = None
+    analyzed_content: str | None = None
     created_at: datetime.datetime
 
     model_config = {"from_attributes": True}
@@ -19,7 +19,7 @@ class FeedbackItemResponse(BaseModel):
     feedback_origin: str
     category: str
     short_mistake_summary: str
-    comments: str | None
+    comments: str | None = None
 
     model_config = {"from_attributes": True}
 
@@ -28,7 +28,7 @@ class EssayAnalysisResponse(BaseModel):
     id: int
     analysis_result: str
     confidence: str
-    recommendations: str | None
+    recommendations: str | None = None
 
     model_config = {"from_attributes": True}
 
@@ -46,8 +46,7 @@ class EssayStatusResponse(BaseModel):
 class UserResponse(BaseModel):
     id: int
     username: str
-    name: str | None
-    uuid: str | None
+    uuid: str | None = None
     created_at: datetime.datetime
     updated_at: datetime.datetime
 

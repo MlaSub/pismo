@@ -14,7 +14,7 @@ const COPY_FEEDBACK_MS = 1000;
 export default function ProfileScreen() {
     const colorScheme = useColorScheme();
     const colors = Colors[colorScheme ?? 'light'];
-    const { uuid, name, clearAll } = useUserDataStore();
+    const { uuid, username, clearAll } = useUserDataStore();
     const [copied, setCopied] = useState(false);
 
     const handleCopy = async () => {
@@ -36,7 +36,7 @@ export default function ProfileScreen() {
         <ThemedView style={styles.container}>
             <ThemedText type="title">Profile</ThemedText>
 
-            {name ? <ThemedText type="defaultSemiBold">Hello, {name}!</ThemedText> : null}
+            {username ? <ThemedText type="defaultSemiBold">Hello, {username}!</ThemedText> : null}
 
 
             <Pressable

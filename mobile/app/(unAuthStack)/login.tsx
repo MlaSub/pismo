@@ -37,22 +37,20 @@ export default function LoginScreen() {
     const [nameInput, setNameInput] = useState('');
     const [uuidInput, setUuidInput] = useState('');
     const [uuidNameInput, setUuidNameInput] = useState('');
-    const { setName, createUuid, setUuid } = useUserDataStore();
+    const { registerUser, loginWithUuid } = useUserDataStore();
     const router = useRouter();
     const colorScheme = useColorScheme();
     const colors = Colors[colorScheme ?? 'light'];
 
     const handleNameSubmit = async () => {
         if (!nameInput.trim()) return;
-        setName(nameInput.trim());
-        await createUuid();
+        await registerUser(nameInput.trim());
         router.replace('/(tabs)/AssignmentsList');
     };
 
-    const handleUuidSubmit = () => {
+    const handleUuidSubmit = async () => {
         if (!uuidInput.trim() || !uuidNameInput.trim()) return;
-        setName(uuidNameInput.trim());
-        setUuid(uuidInput.trim());
+        await loginWithUuid(uuidInput.trim(), uuidNameInput.trim());
         router.replace('/(tabs)/AssignmentsList');
     };
 
@@ -60,6 +58,7 @@ export default function LoginScreen() {
     const setNameMode = () => setMode('name');
     const setUuidMode = () => setMode('uuid');
     const onPressNameSubmit = () => void handleNameSubmit();
+    const onPressUuidSubmit = () => void handleUuidSubmit();
 
     return (
         <ThemedView style={styles.container}>
@@ -114,7 +113,7 @@ export default function LoginScreen() {
                     />
                     <Pressable
                         style={[styles.button, { backgroundColor: colors.tint }]}
-                        onPress={handleUuidSubmit}
+                        onPress={onPressUuidSubmit}
                     >
                         <ThemedText style={{ color: colors.background }}>Continue</ThemedText>
                     </Pressable>
