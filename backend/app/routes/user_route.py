@@ -18,7 +18,7 @@ def create_user_route(
     uuid: str = Depends(get_uuid_header),
 ):
     try:
-        user = create_user(username=body.username, uuid=uuid)
+        user = create_user(uuid=uuid, **body.model_dump(exclude_none=True))
     except UserAlreadyExistsError as e:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
