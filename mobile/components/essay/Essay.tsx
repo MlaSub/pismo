@@ -1,4 +1,4 @@
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { Colors } from '@/constants/theme';
@@ -7,6 +7,7 @@ import type { EssayResponse } from '@/store/essayData';
 
 interface Props {
     essay: EssayResponse;
+    onPress?: () => void;
 }
 
 const STATUS_LABEL: Record<EssayResponse['analysis_status'], string> = {
@@ -16,7 +17,7 @@ const STATUS_LABEL: Record<EssayResponse['analysis_status'], string> = {
     error: 'Error',
 };
 
-export default function Essay({ essay }: Props) {
+export default function Essay({ essay, onPress }: Props) {
     const cardColor = useThemeColor({}, 'card');
     const borderColor = useThemeColor({}, 'border');
     const iconColor = useThemeColor({}, 'icon');
@@ -36,7 +37,7 @@ export default function Essay({ essay }: Props) {
     });
 
     return (
-        <View style={[styles.card, { backgroundColor: cardColor, borderColor }]}>
+        <Pressable onPress={onPress} style={[styles.card, { backgroundColor: cardColor, borderColor }]}>
             <ThemedText type="defaultSemiBold" numberOfLines={1}>
                 {essay.title}
             </ThemedText>
@@ -53,7 +54,7 @@ export default function Essay({ essay }: Props) {
                     {STATUS_LABEL[essay.analysis_status]}
                 </ThemedText>
             </View>
-        </View>
+        </Pressable>
     );
 }
 

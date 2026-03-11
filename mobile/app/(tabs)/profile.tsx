@@ -7,6 +7,7 @@ import { ThemedText } from '@/components/themed-text';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useUserDataStore } from '@/store/userData';
+import { clearAllStores } from '@/utils/clearStores';
 
 
 const COPY_FEEDBACK_MS = 1000;
@@ -14,7 +15,7 @@ const COPY_FEEDBACK_MS = 1000;
 export default function ProfileScreen() {
     const colorScheme = useColorScheme();
     const colors = Colors[colorScheme ?? 'light'];
-    const { uuid, username, clearAll } = useUserDataStore();
+    const { uuid, username } = useUserDataStore();
     const [copied, setCopied] = useState(false);
 
     const handleCopy = async () => {
@@ -25,8 +26,8 @@ export default function ProfileScreen() {
         }
     };
 
-    const handleLogout = async () => {
-        await clearAll();
+    const handleLogout = () => {
+        void clearAllStores();
     };
 
     const onPressCopy = () => void handleCopy();
