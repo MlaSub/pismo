@@ -14,9 +14,9 @@ def get_user_by_uuid(uuid: str) -> User | None:
         return db.query(User).filter(User.uuid == uuid).first()
 
 
-def create_user(username: str, uuid: str) -> User:
+def create_user(uuid: str, **kwargs: object) -> User:
     existing = get_user_by_uuid(uuid)
     if existing:
         raise UserAlreadyExistsError(uuid)
 
-    return single_entry_to_db(User, {"username": username, "uuid": uuid})
+    return single_entry_to_db(User, {"uuid": uuid, **kwargs})

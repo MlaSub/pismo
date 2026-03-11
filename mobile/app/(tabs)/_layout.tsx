@@ -18,6 +18,10 @@ function ExploreIcon({ color, size }: TabIconProps) {
     return <Ionicons name="compass" size={size} color={color} />;
 }
 
+function ProfileIcon({ color, size }: TabIconProps) {
+    return <Ionicons name="person" size={size} color={color} />;
+}
+
 export default function TabLayout() {
     const colorScheme = useColorScheme();
     const colors = Colors[colorScheme ?? 'light'];
@@ -36,12 +40,6 @@ export default function TabLayout() {
             }}
         >
             <Tabs.Screen
-                name="index"
-                options={{
-                    href: null,
-                }}
-            />
-            <Tabs.Screen
                 name="AssignmentsList"
                 options={{
                     title: 'Home',
@@ -49,10 +47,17 @@ export default function TabLayout() {
                 }}
             />
             <Tabs.Screen
-                name="explore"
+                name="EssaysScreen"
                 options={{
-                    title: 'Explore',
+                    title: 'EssaysScreen',
                     tabBarIcon: ExploreIcon,
+                }}
+            />
+            <Tabs.Screen
+                name="profile"
+                options={{
+                    title: 'Profile',
+                    tabBarIcon: ProfileIcon,
                 }}
             />
         </Tabs>

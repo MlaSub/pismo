@@ -1,5 +1,6 @@
 from ..database.database import get_db
 from ..database.entities import (
+    AnalysisStatus,
     Essay,
     EssayAnalysis,
     EssayProcessingQueue,
@@ -9,6 +10,18 @@ from ..database.entities import (
 from ..database.helpers import single_entry_to_db, update_by_id
 from .helpers.files_services import extract_text_from_pdf
 from .helpers.text_extractors import extract_email_subject
+
+
+def to_analysis_status(status: EssayProcessingStatus | None) -> AnalysisStatus:
+    match status:
+        case None | EssayProcessingStatus.PENDING:
+            return AnalysisStatus.NEW
+        case EssayProcessingStatus.COMPLETED:
+            return AnalysisStatus.COMPLETE
+        case EssayProcessingStatus.ERROR:
+            return AnalysisStatus.ERROR
+        case _:
+            return AnalysisStatus.PROCESSING
 
 
 class EssayAlreadyExistsError(Exception):
@@ -47,9 +60,30 @@ def get_essay_detail(essay_id: int, user_id: int) -> dict | None:
         }
 
 
-def get_essays_by_user(user_id: int) -> list[Essay]:
+def get_essays_by_user(user_id: int) -> list[dict]:
     with get_db() as db:
-        return db.query(Essay).filter(Essay.user_id == user_id).all()
+        latest_queue = (
+            db.query(
+                EssayProcessingQueue.essay_id,
+                EssayProcessingQueue.status,
+            )
+            .distinct(EssayProcessingQueue.essay_id)
+            .order_by(
+                EssayProcessingQueue.essay_id,
+                EssayProcessingQueue.created_at.desc(),
+            )
+            .subquery()
+        )
+        rows = (
+            db.query(Essay, latest_queue.c.status)
+            .outerjoin(latest_queue, Essay.id == latest_queue.c.essay_id)
+            .filter(Essay.user_id == user_id)
+            .all()
+        )
+        return [
+            {"essay": essay, "analysis_status": to_analysis_status(status)}
+            for essay, status in rows
+        ]
 
 
 def get_essay_by_title_and_user(essay_title: str, user_id: int) -> Essay | None:

@@ -19,7 +19,12 @@ ALLOWED_MIME_TYPES = {"application/pdf"}
 
 @router.get("/all", response_model=list[EssayResponse])
 def get_essays(user: User = Depends(get_current_user)):
-    return get_essays_by_user(user.id)
+    return [
+        EssayResponse.model_validate(row["essay"]).model_copy(
+            update={"analysis_status": row["analysis_status"]}
+        )
+        for row in get_essays_by_user(user.id)
+    ]
 
 
 @router.get("/detail", response_model=EssayStatusResponse)

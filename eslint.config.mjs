@@ -60,7 +60,7 @@ export default [
             'react/jsx-fragments': ['warn', 'syntax'],
             'react/jsx-no-useless-fragment': 'warn',
             'react/jsx-key': 'error',
-            'react/jsx-no-bind': 'warn',
+            'react/jsx-no-bind': 'off',
             'react/no-unstable-nested-components': 'error',
             'react/jsx-no-constructed-context-values': 'error',
             'react/no-array-index-key': 'warn',

@@ -22,6 +22,13 @@ class EssayProcessingStatus(StrEnum):
     ERROR = "error"
 
 
+class AnalysisStatus(StrEnum):
+    NEW = "new"
+    PROCESSING = "processing"
+    COMPLETE = "complete"
+    ERROR = "error"
+
+
 class CefrLevel(StrEnum):
     A1 = "A1"
     A2 = "A2"

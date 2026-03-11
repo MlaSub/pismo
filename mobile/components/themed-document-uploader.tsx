@@ -14,7 +14,7 @@ const PADDING = 24;
 const FILE_ITEM_PADDING = 12;
 const GAP = 12;
 
-interface DocumentFile {
+export interface DocumentFile {
     uri: string;
     name: string;
     mimeType?: string;
