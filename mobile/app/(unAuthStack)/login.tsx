@@ -2,15 +2,23 @@ import { useState } from 'react';
 import { Pressable, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 
+import { ThemedDropdown } from '@/components/themed-dropdown';
 import { ThemedInput } from '@/components/themed-input';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useUserDataStore } from '@/store/userData';
+import type { CefrLevel } from '@/utils/createUser';
 
 
 type Mode = 'name' | 'uuid';
+
+const CEFR_ITEMS = (['A1', 'A2', 'B1', 'B2', 'C1', 'C2'] as CefrLevel[]).map((level) => ({
+    label: level,
+    value: level,
+}));
+const DEFAULT_CEFR_LEVEL: CefrLevel = 'B2';
 
 interface ToggleButtonProps {
     label: string;
@@ -37,6 +45,7 @@ export default function LoginScreen() {
     const [nameInput, setNameInput] = useState('');
     const [uuidInput, setUuidInput] = useState('');
     const [uuidNameInput, setUuidNameInput] = useState('');
+    const [cefrLevel, setCefrLevel] = useState<CefrLevel>(DEFAULT_CEFR_LEVEL);
     const { registerUser, loginWithUuid } = useUserDataStore();
     const router = useRouter();
     const colorScheme = useColorScheme();
@@ -44,7 +53,7 @@ export default function LoginScreen() {
 
     const handleNameSubmit = async () => {
         if (!nameInput.trim()) return;
-        await registerUser(nameInput.trim());
+        await registerUser(nameInput.trim(), cefrLevel);
         router.replace('/(tabs)/AssignmentsList');
     };
 
@@ -90,6 +99,7 @@ export default function LoginScreen() {
                         onChangeText={setNameInput}
                         autoFocus
                     />
+                    <ThemedDropdown items={CEFR_ITEMS} selectedValue={cefrLevel} onValueChange={setCefrLevel} />
                     <Pressable
                         style={[styles.button, { backgroundColor: colors.tint }]}
                         onPress={onPressNameSubmit}

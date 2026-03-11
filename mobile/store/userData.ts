@@ -4,7 +4,7 @@ import uuidGenerator from 'react-native-uuid'
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 
-import { createUser } from '../utils/createUser'
+import { createUser, type CefrLevel } from '../utils/createUser'
 import { loginUser } from '../utils/loginUser'
 
 const UUID_KEY = 'user-uuid'
@@ -17,7 +17,7 @@ interface UserDataState {
     getUsername: () => string | null
     getUuid: () => string | null
     setUsername: (username: string) => void
-    registerUser: (username: string) => Promise<void>
+    registerUser: (username: string, targetCefrLevel: CefrLevel) => Promise<void>
     loginWithUuid: (uuid: string, username: string) => Promise<void>
     clearAll: () => Promise<void>
     setUuid: (uuid: string | null) => void
@@ -34,12 +34,12 @@ export const useUserDataStore = create<UserDataState>()(
             getUuid: () => get().uuid,
             setUuid: (uuid) => set({ uuid }),
             setUsername: (username) => set({ username }),
-            registerUser: async (username) => {
+            registerUser: async (username, targetCefrLevel) => {
                 const newUuid = uuidGenerator.v4() as string
                 await SecureStore.setItemAsync(UUID_KEY, newUuid)
                 set({ uuid: newUuid, username })
                 try {
-                    await createUser({ username })
+                    await createUser({ username, target_cefr_level: targetCefrLevel })
                 } catch (error) {
                     await SecureStore.deleteItemAsync(UUID_KEY)
                     set({ uuid: null, username: null })
