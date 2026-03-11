@@ -47,9 +47,9 @@ export default function TabLayout() {
                 }}
             />
             <Tabs.Screen
-                name="explore"
+                name="EssaysScreen"
                 options={{
-                    title: 'Explore',
+                    title: 'EssaysScreen',
                     tabBarIcon: ExploreIcon,
                 }}
             />

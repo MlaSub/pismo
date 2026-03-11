@@ -2,6 +2,8 @@ import datetime
 
 from pydantic import BaseModel
 
+from ..database.entities import AnalysisStatus
+
 
 class EssayResponse(BaseModel):
     id: int
@@ -10,6 +12,7 @@ class EssayResponse(BaseModel):
     original_content: str | None = None
     analyzed_content: str | None = None
     created_at: datetime.datetime
+    analysis_status: AnalysisStatus | None = None
 
     model_config = {"from_attributes": True}
 

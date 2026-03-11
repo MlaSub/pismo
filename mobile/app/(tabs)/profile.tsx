@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { Pressable, StyleSheet } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 
+import ThemedScreen from '@/components/themed-screen';
 import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useUserDataStore } from '@/store/userData';
@@ -33,7 +33,7 @@ export default function ProfileScreen() {
     const onPressLogout = () => void handleLogout();
 
     return (
-        <ThemedView style={styles.container}>
+        <ThemedScreen>
             <ThemedText type="title">Profile</ThemedText>
 
             {username ? <ThemedText type="defaultSemiBold">Hello, {username}!</ThemedText> : null}
@@ -55,17 +55,11 @@ export default function ProfileScreen() {
             >
                 <ThemedText style={{ color: colors.background }}>Log out</ThemedText>
             </Pressable>
-        </ThemedView>
+        </ThemedScreen>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        gap: 16,
-        padding: 24,
-        paddingTop: 48,
-    },
     copyBtn: {
         alignItems: 'center',
         borderRadius: 8,
