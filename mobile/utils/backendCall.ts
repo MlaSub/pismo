@@ -6,7 +6,7 @@ import { useUserDataStore } from "../store/userData";
 export const apiBaseUrl = process.env.EXPO_PUBLIC_API_URL;
 
 interface BackendCallParams {
-    method: "GET" | "POST" | "PUT" | "DELETE"
+    method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE"
     urlExtension: string
     body?: object | null
 }

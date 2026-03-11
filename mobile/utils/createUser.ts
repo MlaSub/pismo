@@ -2,7 +2,7 @@ import { backendCall } from "./backendCall";
 
 export type CefrLevel = "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
 
-interface CreateUserParams {
+interface UserParams {
     username: string;
     target_cefr_level: CefrLevel;
 }
@@ -16,7 +16,7 @@ interface UserResponse {
     updated_at: string;
 }
 
-export const createUser = async ({ username, target_cefr_level }: CreateUserParams): Promise<UserResponse> => {
+export const createUser = async ({ username, target_cefr_level }: UserParams): Promise<UserResponse> => {
     const data = await backendCall({
         method: "POST",
         urlExtension: "/users/new",
@@ -25,3 +25,18 @@ export const createUser = async ({ username, target_cefr_level }: CreateUserPara
 
     return data as UserResponse;
 };
+
+interface UserUpdateParams {
+    username?: string;
+    target_cefr_level?: CefrLevel;
+}
+
+export const updateUser = async (params: UserUpdateParams): Promise<UserResponse> => {
+    const data = await backendCall({
+        method: "PATCH",
+        urlExtension: "/users/update",
+        body: params,
+    });
+
+    return data as UserResponse;
+}

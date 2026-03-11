@@ -1,12 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from ..dependencies import get_uuid_header
-from ..schemas.inSchemas import UserCreate, UserLogin
-from ..schemas.outSchemas import UserResponse
+from ..schemas.inSchemas import UserCreate, UserLogin, UserUpdate
+from ..schemas.outSchemas import UserResponse, UserResponseNoUuid
 from ..services.user_services import (
     UserAlreadyExistsError,
     create_user,
     get_user_by_uuid,
+    update_user,
 )
 
 router = APIRouter(prefix="/users", tags=["user"])
@@ -25,6 +26,20 @@ def create_user_route(
             detail="User with this UUID already exists",
         ) from e
 
+    return user
+
+
+@router.patch("/update", response_model=UserResponseNoUuid)
+def update_user_route(
+    body: UserUpdate,
+    uuid: str = Depends(get_uuid_header),
+):
+    user = update_user(uuid=uuid, **body.model_dump(exclude_none=True))
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
+        )
     return user
 
 
