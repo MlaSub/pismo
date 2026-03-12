@@ -18,7 +18,7 @@ Pismo intends to allow the user (me) to share or upload a pdf document that is a
 
 This is still MVP stage and further developments will be made. Concessions were made to enable the user to analyse the essays that have been checked by professor.
 
-![Pismo demo](assets/pismo%20demo.gif)
+<img src="assets/pismo demo.gif" alt="Pismo demo" height="500" />
 
 ## Key Features
 
