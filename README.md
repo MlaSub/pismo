@@ -1,18 +1,33 @@
 # Pismo
 
-Hello! I have created this project to help myself with leveling up my language skills, but also to show my knowledge in development. I chose to build an app that will help me track my progress in writing skill of Dutch and Russian. These are the two lanuages that I am currently learning, but I chose to start with Russian, because I have failed 4 times the official exam and it was only on the writing part. I perfectly passed speaking, reading, grammer, but writing is my kryptonite, or so it seems.
+Hello! I have created this project to help myself with leveling up my languages skills, but also to show my knowledge in development. I chose to build an app that will help me track my progress in writing skill of Dutch and Russian. These are the two languages that I am currently learning, but I chose to start with Russian, because I have failed 4 times the official exam and it was only on the writing part. I passed speaking, reading, and grammar with strong results, but repeatedly failed the writing section. Writing became my kryptonite.
 
 Pismo is a Serbian word for a letter.
 
 ## Problem statement
 
-After years of learning Dutch and Russian, I struggle with writing, not in expressing myself, but in stopping the same mistakes from repeating endlessly. This fine-tuning costs me quite a lot, trapping me in a vicious cycle of failed exams and unbroken errors. More writing practice, self-checks, and time haven't broken it.
+After years of studying Dutch and Russian, I realised my main problem was not expressing ideas, but repeatedly making the same mistakes in writing.
+
+Even after receiving corrections from my professor, those mistakes kept reappearing in essays. The feedback was useful, but there was no system that helped me track patterns across multiple essays.
+
+Pismo was built to solve that.
 
 ## Product Overview
 
 Pismo intends to allow the user (me) to share or upload a pdf document that is an export of gmail exchange with my professor after she corrected my essay. It also allows me to see all my essays and to see each essay individually, with the full analysis.
 
 This is still MVP stage and further developments will be made. Concessions were made to enable the user to analyse the essays that have been checked by professor.
+
+![Pismo demo](assets/pismo%20demo.gif)
+
+## Key Features
+
+- Upload corrected essays from Gmail conversations
+- Automatic extraction of the original essay text
+- LLM-powered CEFR level evaluation
+- Automatic mistake detection and categorisation
+- Explanation of each mistake
+- Historical view of all essays and corrections
 
 ### Simple Product Flow
 
@@ -44,13 +59,48 @@ sequenceDiagram
     M-->>U: Display analysed essay and feedback
 ```
 
-### Backlog
+## Roadmap
 
-#### 
+Pismo is still in MVP stage, but here’s what I plan to add in the future to make it more helpful to the user:
 
-## Tech
+### 1. Security & User Management
+- Add **JWT token authentication** so my account and essays are safe and private. Now I use only uuids to seperate the users.
 
-Monorepo with a Python/FastAPI backend and a React Native (Expo) mobile app.
+### 2. Multilingual Support
+- Allow the same kind of analysis for **Dutch**, not just Russian. That way I can track progress in both languages.
+
+### 3. Write Essays Directly in the App
+- Let the user (me) **write an essay inside the app** instead of only uploading PDFs.
+- Convert what I type from **QWERTY to Russian letters** automatically (like [Translit.net](https://translit.net/)).
+- Analyse the essay fully using **LLM**, without needing a teacher in the loop.
+
+### 4. Historical Insights
+- Show an **overview of the past 5 essays** for each language.
+- Highlight the **most common mistakes** so I know where I usually go wrong.
+
+### 5. Personalized Recommendations
+- Give **tips for the next essay** based on my previous mistakes.
+- Suggest **ways to improve my weakest points**, for example with flashcards or targeted exercises.
+
+This roadmap shows what I want to improve for myself, but also reflects the way I think about building a product: step by step, focusing on what brings the most value to the user first.
+
+## Architecture
+
+Pismo is structured as a monorepo containing:
+
+- **Backend:** Python + FastAPI
+- **Mobile app:** React Native (Expo)
+- **LLM inference:** Ollama (local models during development)
+- **Database:** PostgreSQL (Docker)
+
+The backend is responsible for:
+
+- file ingestion
+- text preprocessing
+- LLM evaluation
+- mistake extraction
+- storing essay analysis
+
 
 ## Prerequisites (macOS)
 
