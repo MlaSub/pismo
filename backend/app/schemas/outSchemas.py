@@ -50,6 +50,17 @@ class UserResponse(BaseModel):
     id: int
     username: str
     uuid: str | None = None
+    target_cefr_level: str | None = None
+    created_at: datetime.datetime
+    updated_at: datetime.datetime
+
+    model_config = {"from_attributes": True}
+
+
+class UserResponseNoUuid(BaseModel):
+    id: int
+    username: str
+    target_cefr_level: str | None = None
     created_at: datetime.datetime
     updated_at: datetime.datetime
 

@@ -14,6 +14,18 @@ def get_user_by_uuid(uuid: str) -> User | None:
         return db.query(User).filter(User.uuid == uuid).first()
 
 
+def update_user(uuid: str, **kwargs: object) -> User | None:
+    with get_db() as db:
+        user = db.query(User).filter(User.uuid == uuid).first()
+        if user is None:
+            return None
+        for key, value in kwargs.items():
+            setattr(user, key, value)
+        db.commit()
+        db.refresh(user)
+        return user
+
+
 def create_user(uuid: str, **kwargs: object) -> User:
     existing = get_user_by_uuid(uuid)
     if existing:

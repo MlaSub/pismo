@@ -10,5 +10,9 @@ class UserLogin(BaseModel):
     username: str
 
 
+class UserUpdate(UserCreate):
+    username: str | None = None
+
+
 class EssayDetailRequest(BaseModel):
     essay_id: int

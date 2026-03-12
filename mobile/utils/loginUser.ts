@@ -1,4 +1,5 @@
 import { backendCall } from "./backendCall";
+import type { CefrLevel } from "./createUser";
 
 interface LoginUserParams {
     username: string;
@@ -8,6 +9,7 @@ interface UserResponse {
     id: number;
     username: string;
     uuid: string | null;
+    target_cefr_level: CefrLevel | null;
     created_at: string;
     updated_at: string;
 }

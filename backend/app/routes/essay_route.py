@@ -27,7 +27,7 @@ def get_essays(user: User = Depends(get_current_user)):
     ]
 
 
-@router.get("/detail", response_model=EssayStatusResponse)
+@router.post("/detail", response_model=EssayStatusResponse)
 def get_essay(body: EssayDetailRequest, user: User = Depends(get_current_user)):
     detail = get_essay_detail(body.essay_id, user.id)
     if not detail:

@@ -8,7 +8,7 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useUserDataStore } from '@/store/userData';
 
 export const unstable_settings = {
-    anchor: '(tabs)',
+    initialRouteName: '(tabs)',
 };
 
 export default function RootLayout() {
@@ -31,6 +31,7 @@ export default function RootLayout() {
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
             <Stack>
                 <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                <Stack.Screen name="(noneMainScreens)" options={{ headerShown: false }} />
                 <Stack.Screen name="(unAuthStack)" options={{ headerShown: false }} />
             </Stack>
             <StatusBar style="auto" />
