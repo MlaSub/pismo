@@ -69,6 +69,7 @@ class User(TimestampMixin, Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     username: Mapped[str] = mapped_column(unique=True, index=True)
     uuid: Mapped[str | None]
+    push_token: Mapped[str | None]
     target_cefr_level: Mapped[CefrLevel | None] = mapped_column(
         SAEnum(CefrLevel, name="cefrlevel", create_type=False), nullable=True
     )

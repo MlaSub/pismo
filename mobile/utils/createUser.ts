@@ -29,6 +29,7 @@ export const createUser = async ({ username, target_cefr_level }: UserParams): P
 interface UserUpdateParams {
     username?: string;
     target_cefr_level?: CefrLevel;
+    push_token?: string;
 }
 
 export const updateUser = async (params: UserUpdateParams): Promise<UserResponse> => {

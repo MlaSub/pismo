@@ -12,6 +12,7 @@ class UserLogin(BaseModel):
 
 class UserUpdate(UserCreate):
     username: str | None = None
+    push_token: str | None = None
 
 
 class EssayDetailRequest(BaseModel):

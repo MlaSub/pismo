@@ -8,6 +8,7 @@ from ..database.entities import (
     EssayProcessingStatus,
     FeedbackItem,
     FeedbackOrigin,
+    User,
 )
 from ..database.helpers import bulk_entries_to_db, get_ids_by_status
 from ..llm.llm_helper import chat_with_model, extract_json_from_response
@@ -15,6 +16,7 @@ from ..llm.prompts.essay_feedback_items_extractor import (
     get_essay_feedback_items_extraction_prompt,
 )
 from ..llm.schemas import FeedbackItemResponse
+from ..services.notification_service import send_push_notification
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
@@ -49,6 +51,14 @@ def process_single_essay_for_feedback(entry_id: int):
             entry.status = EssayProcessingStatus.ERROR
             entry.retries += 1
             db.commit()
+            user = db.query(User).filter(User.id == entry.user_id).first()
+            if user and user.push_token:
+                send_push_notification(
+                    push_token=user.push_token,
+                    title="Essay Error",
+                    body="There was a problem processing your essay.",
+                    data={"essay_id": entry.essay_id},
+                )
             return
 
         try:
@@ -87,10 +97,26 @@ def process_single_essay_for_feedback(entry_id: int):
             entry.status = EssayProcessingStatus.ERROR
             entry.retries += 1
             db.commit()
+            user = db.query(User).filter(User.id == entry.user_id).first()
+            if user and user.push_token:
+                send_push_notification(
+                    push_token=user.push_token,
+                    title="Essay Error",
+                    body="There was a problem processing your essay.",
+                    data={"essay_id": entry.essay_id},
+                )
             return
 
         entry.status = EssayProcessingStatus.COMPLETED
         db.commit()
+        user = db.query(User).filter(User.id == entry.user_id).first()
+        if user and user.push_token:
+            send_push_notification(
+                push_token=user.push_token,
+                title="Essay Ready",
+                body="Your essay has been analysed.",
+                data={"essay_id": entry.essay_id},
+            )
 
 
 def process_essays_for_feedback_extraction():
