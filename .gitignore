@@ -1,4 +1,5 @@
 node_modules
 .env.*
+!.env.*.example
 CLAUDE.md__pycache__/
 *.pyc

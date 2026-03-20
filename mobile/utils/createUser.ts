@@ -5,6 +5,7 @@ export type CefrLevel = "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
 interface UserParams {
     username: string;
     target_cefr_level: CefrLevel;
+    push_token?: string | null;
 }
 
 interface UserResponse {
@@ -16,11 +17,11 @@ interface UserResponse {
     updated_at: string;
 }
 
-export const createUser = async ({ username, target_cefr_level }: UserParams): Promise<UserResponse> => {
+export const createUser = async ({ username, target_cefr_level, push_token }: UserParams): Promise<UserResponse> => {
     const data = await backendCall({
         method: "POST",
         urlExtension: "/users/new",
-        body: { username, target_cefr_level },
+        body: { username, target_cefr_level, push_token },
     });
 
     return data as UserResponse;

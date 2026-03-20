@@ -49,7 +49,7 @@ export default function RootLayout() {
     }, [uuid, hydrated, isMounted, segments, router]);
 
     useEffect(() => {
-        if (!uuid) return;
+        if (!uuid || !hydrated) return;
         void (async () => {
             try {
                 await syncPushToken();
@@ -57,7 +57,7 @@ export default function RootLayout() {
                 console.error('Failed to sync push token:', error);
             }
         })();
-    }, [uuid, syncPushToken]);
+    }, [uuid, hydrated, syncPushToken]);
 
     return (
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>

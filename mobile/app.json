@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "mobile",
-    "slug": "mobile",
+    "name": "pismo",
+    "slug": "pismo",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -13,6 +13,22 @@
       "bundleIdentifier": "com.yourapp.ogled",
       "infoPlist": {
         "CFBundleDocumentTypes": [
+          {
+            "CFBundleTypeName": "PDF",
+            "LSItemContentTypes": [
+              "com.adobe.pdf"
+            ],
+            "LSHandlerRank": "Alternate"
+          },
+          {
+            "CFBundleTypeName": "Images",
+            "LSItemContentTypes": [
+              "public.image",
+              "public.jpeg",
+              "public.png"
+            ],
+            "LSHandlerRank": "Alternate"
+          },
           {
             "CFBundleTypeName": "PDF",
             "LSItemContentTypes": [
@@ -45,8 +61,24 @@
                 "application/pdf"
               ]
             }
+          },
+          {
+            "UTTypeConformsTo": [
+              "public.data"
+            ],
+            "UTTypeDescription": "PDF Document",
+            "UTTypeIdentifier": "com.adobe.pdf",
+            "UTTypeTagSpecification": {
+              "public.filename-extension": [
+                "pdf"
+              ],
+              "public.mime-type": [
+                "application/pdf"
+              ]
+            }
           }
-        ]
+        ],
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
@@ -116,6 +148,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "1273baad-c56b-430a-8207-bf3eebfeb80a"
+      }
+    },
+    "owner": "mladensu"
   }
 }

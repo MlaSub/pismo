@@ -40,13 +40,19 @@ export const useUserDataStore = create<UserDataState>()(
             getUuid: () => get().uuid,
             registerUser: async (username, targetCefrLevel) => {
                 const newUuid = uuidGenerator.v4() as string
-                await SecureStore.setItemAsync(UUID_KEY, newUuid)
-                set({ uuid: newUuid, username, targetCefrLevel })
+                let pushToken: string | null = null
                 try {
-                    await createUser({ username, target_cefr_level: targetCefrLevel })
+                    pushToken = await registerForPushNotifications()
+                } catch {
+                    // push token unavailable (e.g. iOS simulator) — proceed without it
+                }
+                await SecureStore.setItemAsync(UUID_KEY, newUuid)
+                set({ uuid: newUuid, username, targetCefrLevel, pushToken })
+                try {
+                    await createUser({ username, target_cefr_level: targetCefrLevel, push_token: pushToken })
                 } catch (error) {
                     await SecureStore.deleteItemAsync(UUID_KEY)
-                    set({ uuid: null, username: null, targetCefrLevel: null })
+                    set({ uuid: null, username: null, targetCefrLevel: null, pushToken: null })
                     throw error
                 }
             },
@@ -56,6 +62,7 @@ export const useUserDataStore = create<UserDataState>()(
                 try {
                     const response = await loginUser({ username })
                     set({ targetCefrLevel: response.target_cefr_level })
+                    await get().syncPushToken()
                 } catch (error) {
                     await SecureStore.deleteItemAsync(UUID_KEY)
                     set({ uuid: null, username: null, targetCefrLevel: null })
@@ -63,9 +70,14 @@ export const useUserDataStore = create<UserDataState>()(
                 }
             },
             syncPushToken: async () => {
-                const currentToken = await registerForPushNotifications()
-                if (!currentToken) return
-                if (currentToken === get().pushToken) return
+                if (!get().uuid) return
+                let currentToken: string | null = null
+                try {
+                    currentToken = await registerForPushNotifications()
+                } catch {
+                    // push token unavailable (e.g. iOS simulator) — skip
+                }
+                if (!currentToken || currentToken === get().pushToken) return
                 await updateUser({ push_token: currentToken })
                 set({ pushToken: currentToken })
             },
