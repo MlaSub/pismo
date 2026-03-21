@@ -51,16 +51,16 @@ export default function TabLayout() {
                 }}
             />
             <Tabs.Screen
-                name="WriteEssayScreen"
+                name="WriteEssayPage"
                 options={{
-                    title: 'Write Essay',
+                    title: 'Write an Essay',
                     tabBarIcon: EssaysIcon,
                 }}
             />
             <Tabs.Screen
                 name="EssaysScreen"
                 options={{
-                    title: 'EssaysScreen',
+                    title: 'Essays Screen',
                     tabBarIcon: ExploreIcon,
                 }}
             />
