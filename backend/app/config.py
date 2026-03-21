@@ -1,7 +1,9 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env.development", extra="ignore")
+
     postgres_user: str
     postgres_password: str
     postgres_db: str
@@ -13,9 +15,6 @@ class Settings(BaseSettings):
     llm_model: str
     llm_num_threads: int
     groq_api_key: str = ""
-
-    class Config:
-        env_file = ".env.development"
 
 
 settings = Settings()

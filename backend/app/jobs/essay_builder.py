@@ -14,6 +14,7 @@ from ..llm.llm_helper import chat_with_model, extract_json_from_response
 from ..llm.prompts.essay_cerf_level_extractor import get_cerf_level_extraction_prompt
 from ..llm.prompts.essay_extraction_instruction import get_prompt_for_essay_extraction
 from ..llm.schemas import CerfLevelResponse, EssayExtractionResponse
+from ..services.notification_service import send_push_notification
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
@@ -105,6 +106,18 @@ def process_essay(entry_id: int) -> None:
                     error_entry.status = EssayProcessingStatus.ERROR
                     error_entry.retries += 1
                     error_db.commit()
+                    user = (
+                        error_db.query(User)
+                        .filter(User.id == error_entry.user_id)
+                        .first()
+                    )
+                    if user and user.push_token:
+                        send_push_notification(
+                            push_token=user.push_token,
+                            title="Essay Error",
+                            body="There was a problem processing your essay.",
+                            data={"essay_id": error_entry.essay_id},
+                        )
             return
 
         entry.status = EssayProcessingStatus.READY_FOR_FEEDBACK_EXTRACTION
