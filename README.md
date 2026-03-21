@@ -133,7 +133,15 @@ docker compose up
 
 Ollama runs natively on the host machine rather than in Docker. Running it natively is significantly faster because it can use the GPU directly — dockerising it adds overhead and makes the model much slower (CPU-only on macOS).
 
-In production, a hosted API service (e.g. Mistral, Qwen via Groq, or similar) would be used instead.
+In production, a hosted API service (e.g. Mistral, Qwen via Groq, or OpenAI) would be used instead.
+
+You can choose between:
+
+- running models locally with Ollama
+- or using an external provider like Groq or OpenAI
+
+Configuration for both approaches is available in:
+`./.env.development.example`
 
 Install and start Ollama:
 
