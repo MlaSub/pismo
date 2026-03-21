@@ -14,6 +14,10 @@ function HomeIcon({ color, size }: TabIconProps) {
     return <Ionicons name="home" size={size} color={color} />;
 }
 
+function EssaysIcon({ color, size }: TabIconProps) {
+    return <Ionicons name="document-text" size={size} color={color} />;
+}
+
 function ExploreIcon({ color, size }: TabIconProps) {
     return <Ionicons name="compass" size={size} color={color} />;
 }
@@ -44,6 +48,13 @@ export default function TabLayout() {
                 options={{
                     title: 'Home',
                     tabBarIcon: HomeIcon,
+                }}
+            />
+            <Tabs.Screen
+                name="WriteEssayScreen"
+                options={{
+                    title: 'Write Essay',
+                    tabBarIcon: EssaysIcon,
                 }}
             />
             <Tabs.Screen

@@ -140,3 +140,15 @@ class EssayProcessingQueue(TimestampMixin, Base):
 
     def __repr__(self) -> str:
         return f"<EssayProcessingQueue(id={self.id}, essay_id={self.essay_id}, status={self.status})>"
+
+
+class WriteEssayDraft(TimestampMixin, Base):
+    __tablename__ = "write_essay_drafts"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    title: Mapped[str | None]
+    content: Mapped[str | None]
+
+    def __repr__(self) -> str:
+        return f"<WriteEssayDraft(id={self.id}, user_id={self.user_id})>"

@@ -25,6 +25,10 @@ export async function registerForPushNotifications(): Promise<string | null> {
         return null;
     }
 
+    if (!Constants.isDevice) {
+        return null;
+    }
+
     const projectId = Constants.expoConfig?.extra?.eas?.projectId;
     if (!projectId) {
         console.warn('No EAS project ID found — cannot get push token');

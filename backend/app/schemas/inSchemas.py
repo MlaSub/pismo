@@ -19,3 +19,13 @@ class UserUpdate(UserCreate):
 
 class EssayDetailRequest(BaseModel):
     essay_id: int
+
+
+class WriteEssayDraftCreateRequest(BaseModel):
+    title: str | None = None
+    content: str | None = None
+
+
+class WriteEssayDraftUpdateRequest(BaseModel):
+    title: str | None = None
+    content: str | None = None
