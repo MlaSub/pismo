@@ -4,11 +4,19 @@ Hello! I have created this project to help myself with leveling up my languages 
 
 Pismo is a Serbian word for a letter.
 
+## TL;DR
+
+Pismo is a personal project I built to improve my writing skills in Russian and Dutch by tracking and analysing my mistakes over time.
+
+Instead of just receiving corrections (from my teachers) and forgetting them, the app extracts essays from Gmail PDFs, evaluates their CEFR level, detects mistakes, and explains them, all in one place.
+
+The goal is simple: stop repeating the same mistakes and actually improve through structured feedback.
+
 ## Problem statement
 
-After years of studying Dutch and Russian, I realised my main problem was not expressing ideas, but repeatedly making the same mistakes in writing.
+After extended periods of learning a new language, many learners (me first) realise that the main challenge is not expressing ideas, but repeatedly making the same mistakes in writing.
 
-Even after receiving corrections from my professor, those mistakes kept reappearing in essays. The feedback was useful, but there was no system that helped me track patterns across multiple essays.
+Even after receiving corrections from teachers or tools, those mistakes tend to reappear. While feedback is helpful, it is often fragmented and lacks a system for tracking patterns across multiple pieces of writing.
 
 Pismo was built to solve that.
 
@@ -18,9 +26,7 @@ Pismo intends to allow the user (me) to share or upload a pdf document that is a
 
 This is still MVP stage and further developments will be made. Concessions were made to enable the user to analyse the essays that have been checked by professor.
 
-<img src="assets/pismo demo.gif" alt="Pismo demo" height="500" />
-
-## Key Features
+### Key Features
 
 - Upload corrected essays from Gmail conversations
 - Automatic extraction of the original essay text
@@ -28,6 +34,9 @@ This is still MVP stage and further developments will be made. Concessions were 
 - Automatic mistake detection and categorisation
 - Explanation of each mistake
 - Historical view of all essays and corrections
+- Push notification when the analysis is ready
+
+<img src="assets/pismo demo.gif" alt="Pismo demo" height="500" />
 
 ### Simple Product Flow
 
@@ -54,6 +63,7 @@ sequenceDiagram
     B->>B: Evaluate CEFR level with LLM
     B->>B: Extract and categorise mistakes with LLM
     B->>B: Finalise analysis
+    B->>U: Push notification
 
     M-->>B: Essay feedback ready
     M-->>U: Display analysed essay and feedback
