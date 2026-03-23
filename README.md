@@ -35,6 +35,7 @@ This is still MVP stage and further developments will be made. Concessions were 
 - Explanation of each mistake
 - Historical view of all essays and corrections
 - Push notification when the analysis is ready
+- Write and save draft essays, convert QWERTY text to Russian cyrilics
 
 <img src="assets/pismo demo.gif" alt="Pismo demo" height="500" />
 
@@ -80,9 +81,9 @@ Pismo is still in MVP stage, but here’s what I plan to add in the future to ma
 - Allow the same kind of analysis for **Dutch**, not just Russian. That way I can track progress in both languages.
 
 ### 3. Write Essays Directly in the App
-- Let the user (me) **write an essay inside the app** instead of only uploading PDFs.
-- Convert what I type from **QWERTY to Russian letters** automatically (like [Translit.net](https://translit.net/)).
-- Analyse the essay fully using **LLM**, without needing a teacher in the loop.
+- ✅ Let the user (me) **write an essay inside the app** instead of only uploading PDFs.
+- ✅ Convert what I type from **QWERTY to Russian letters** automatically (like [Translit.net](https://translit.net/)).
+- 🔧 Analyse the essay fully using **LLM**, without needing a teacher in the loop.
 
 ### 4. Historical Insights
 - Show an **overview of the past 5 essays** for each language.
