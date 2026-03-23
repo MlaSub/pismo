@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, View } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { useRouter } from 'expo-router';
 
@@ -17,6 +17,7 @@ type WriteMode = 'latin' | 'cyrillic';
 
 interface HeaderProps {
     isSaving: boolean;
+    isSaveDisabled: boolean;
     onCopy: () => void;
     onSave: () => void;
 }
@@ -26,10 +27,11 @@ interface ModeToggleProps {
     onToggle: (mode: WriteMode) => void;
 }
 
-function ScreenHeader({ isSaving, onCopy, onSave }: HeaderProps) {
+function ScreenHeader({ isSaving, isSaveDisabled, onCopy, onSave }: HeaderProps) {
     const tintColor = useThemeColor({}, 'tint');
     const iconColor = useThemeColor({}, 'icon');
     const router = useRouter();
+    const disabled = isSaving || isSaveDisabled;
 
     return (
         <View style={styles.header}>
@@ -40,8 +42,8 @@ function ScreenHeader({ isSaving, onCopy, onSave }: HeaderProps) {
                 <Pressable onPress={onCopy}>
                     <ThemedText style={[styles.headerBtn, { color: tintColor }]}>Copy</ThemedText>
                 </Pressable>
-                <Pressable onPress={onSave} disabled={isSaving}>
-                    <ThemedText style={[styles.headerBtn, { color: tintColor }]}>
+                <Pressable onPress={onSave} disabled={disabled}>
+                    <ThemedText style={[styles.headerBtn, { color: tintColor }, disabled && styles.headerBtnDisabled]}>
                         {isSaving ? 'Saving…' : 'Save'}
                     </ThemedText>
                 </Pressable>
@@ -81,10 +83,12 @@ function useWriteEssay() {
     const setEssayTitle = useWriteEssayStore((s) => s.setEssayTitle);
     const setEssayContent = useWriteEssayStore((s) => s.setEssayContent);
     const saveOrCreateDraft = useWriteEssayStore((s) => s.saveOrCreateDraft);
+    const savedDraftId = useWriteEssayStore((s) => s.savedDraftId);
     const router = useRouter();
     const [title, setTitle] = useState(() => useWriteEssayStore.getState().essayTitle);
     const [content, setContent] = useState(() => useWriteEssayStore.getState().essayContent);
     const [lastChar, setLastChar] = useState('');
+    const [lastTitleChar, setLastTitleChar] = useState('');
     const [mode, setMode] = useState<WriteMode>('latin');
     const [isSaving, setIsSaving] = useState(false);
 
@@ -96,50 +100,71 @@ function useWriteEssay() {
         return () => clearInterval(interval);
     }, [title, content, setEssayTitle, setEssayContent]);
 
-    const handleContentChange = useCallback((newText: string) => {
-        if (mode !== 'cyrillic' || newText.length <= content.length || !newText.startsWith(content)) {
-            setContent(newText);
-            setLastChar(newText.length > 0 ? newText[newText.length - 1] : '');
+    const handleCyrillicChange = useCallback((
+        newText: string,
+        current: string,
+        lastCh: string,
+        setText: (v: string) => void,
+        setLastCh: (v: string) => void,
+    ) => {
+        if (mode !== 'cyrillic' || newText.length <= current.length || !newText.startsWith(current)) {
+            setText(newText);
+            setLastCh(newText.length > 0 ? newText[newText.length - 1] : '');
             return;
         }
-        let curr = content;
-        let last = lastChar ? lastChar : " ";
-        for (const char of newText.slice(content.length)) {
+        let curr = current;
+        let last = lastCh ? lastCh : " ";
+        for (const char of newText.slice(current.length)) {
             const { change, newValue } = latinToCyrillic(last, char);
             curr = change ? curr.slice(0, -1) + newValue : curr + newValue;
             if (newValue !== '') last = newValue;
         }
-        setContent(curr);
-        setLastChar(last);
-    }, [mode, content, lastChar]);
+        setText(curr);
+        setLastCh(last);
+    }, [mode]);
+
+
+    const handleTitleChange = useCallback((newText: string) => {
+        handleCyrillicChange(newText, title, lastTitleChar, setTitle, setLastTitleChar);
+    }, [handleCyrillicChange, title, lastTitleChar]);
+
+    const handleContentChange = useCallback((newText: string) => {
+        handleCyrillicChange(newText, content, lastChar, setContent, setLastChar);
+    }, [handleCyrillicChange, content, lastChar]);
 
     const handleSave = useCallback(async () => {
+        if (savedDraftId === null && (!title.trim() || !content.trim())) {
+            Alert.alert('Missing fields', 'Please add a title and content before saving.');
+            return;
+        }
         setIsSaving(true);
         setEssayTitle(title);
         setEssayContent(content);
         try { await saveOrCreateDraft(); router.back(); }
         finally { setIsSaving(false); }
-    }, [title, content, setEssayTitle, setEssayContent, saveOrCreateDraft, router]);
+    }, [savedDraftId, title, content, setEssayTitle, setEssayContent, saveOrCreateDraft, router]);
 
     const handleCopy = useCallback(async () => {
         await Clipboard.setStringAsync(content);
     }, [content]);
 
-    return { content, handleContentChange, handleCopy, handleSave, isSaving, mode, setMode, setTitle, title };
+    return { content, handleContentChange, handleCopy, handleSave, handleTitleChange, isSaving, mode, savedDraftId, setMode, title };
 }
 
 export default function WriteEssayScreen() {
-    const { content, handleContentChange, handleCopy, handleSave, isSaving, mode, setMode, setTitle, title } = useWriteEssay();
+    const { content, handleContentChange, handleCopy, handleSave, handleTitleChange, isSaving, mode, savedDraftId, setMode, title } = useWriteEssay();
+    const isSaveDisabled = savedDraftId === null && (!title.trim() || !content.trim());
 
     return (
         <ThemedScroll>
             <ScreenHeader
                 isSaving={isSaving}
+                isSaveDisabled={isSaveDisabled}
                 onCopy={() => void handleCopy()}
                 onSave={() => void handleSave()}
             />
             <ThemedInput
-                onChangeText={setTitle}
+                onChangeText={handleTitleChange}
                 placeholder="Title"
                 value={title}
             />
@@ -170,6 +195,9 @@ const styles = StyleSheet.create({
     headerBtn: {
         fontSize: 15,
         fontWeight: '600',
+    },
+    headerBtnDisabled: {
+        opacity: 0.4,
     },
     modeBtn: {
         borderRadius: 8,

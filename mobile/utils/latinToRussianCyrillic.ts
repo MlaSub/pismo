@@ -9,7 +9,7 @@ const MULTI_CHAR_MAP_NEW: Array<[string, string]> = [
     ['ьq', 'ъ'],
 ];
 
-const SINGLE_CHAR_MAP: Record<string, string> = {
+const SINGLE_CHAR_MAP: { [key: string]: string | undefined } = {
     a: 'а', b: 'б', v: 'в', g: 'г', d: 'д', e: 'е',
     z: 'з', i: 'и', j: 'й', k: 'к', l: 'л', m: 'м',
     n: 'н', o: 'о', p: 'п', r: 'р', s: 'с', t: 'т',
@@ -30,7 +30,7 @@ export function latinToCyrillic(lastCharacter: string, nextCharacter: string): L
 
     const multiMatch = MULTI_CHAR_MAP_NEW.find(([lat]) => lat === lower);
     if (multiMatch) {
-        const isUpper = /[A-Z]/.test(candidate[0]);
+        const isUpper = candidate[0] !== candidate[0].toLowerCase();
         const cyr = multiMatch[1];
         conv = isUpper ? cyr[0].toUpperCase() + cyr.slice(1) : cyr;
         changeRequired = true;
@@ -40,9 +40,13 @@ export function latinToCyrillic(lastCharacter: string, nextCharacter: string): L
             conv = '';
         } else {
             const cyr = SINGLE_CHAR_MAP[nextCharacter.toLowerCase()];
-            conv = cyr !== undefined
-                ? /[A-Z]/.test(nextCharacter) ? cyr[0].toUpperCase() + cyr.slice(1) : cyr
-                : nextCharacter;
+            if (cyr === undefined) {
+                conv = nextCharacter;
+            } else if (/[A-Z]/.test(nextCharacter)) {
+                conv = cyr[0].toUpperCase() + cyr.slice(1);
+            } else {
+                conv = cyr;
+            }
         }
     }
     return { change: changeRequired, newValue: conv };

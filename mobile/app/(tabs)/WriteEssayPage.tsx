@@ -9,12 +9,13 @@ import { useThemeColor } from '@/hooks/use-theme-color';
 import { useWriteEssayStore } from '@/store/writeEssay';
 import type { WriteEssayDraftResponse } from '@/utils/writeEssayCall';
 
-const NEW_DRAFT_BUTTON_LABEL = '+ New Draft';
+const NEW_DRAFT_BUTTON_LABEL = '+ New Essay';
 
 export default function WriteEssayPage() {
     const drafts = useWriteEssayStore((state) => state.drafts);
     const fetchDrafts = useWriteEssayStore((state) => state.fetchDrafts);
     const cleanEssayData = useWriteEssayStore((state) => state.cleanEssayData);
+    const deleteDraft = useWriteEssayStore((state) => state.deleteDraft);
     const setEssayTitle = useWriteEssayStore((state) => state.setEssayTitle);
     const setEssayContent = useWriteEssayStore((state) => state.setEssayContent);
     const tintColor = useThemeColor({}, 'tint');
@@ -51,7 +52,11 @@ export default function WriteEssayPage() {
                 data={drafts}
                 keyExtractor={(item) => String(item.id)}
                 renderItem={({ item }) => (
-                    <WriteEssayDraftCard draft={item} onPress={() => onDraftPress(item)} />
+                    <WriteEssayDraftCard
+                        draft={item}
+                        onDelete={() => void deleteDraft(item.id)}
+                        onPress={() => onDraftPress(item)}
+                    />
                 )}
                 ListHeaderComponent={
                     <>

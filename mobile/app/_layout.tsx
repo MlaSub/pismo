@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
+import { StyleSheet } from 'react-native';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import * as Notifications from 'expo-notifications';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -60,13 +62,21 @@ export default function RootLayout() {
     }, [uuid, hydrated, syncPushToken]);
 
     return (
-        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-            <Stack>
-                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                <Stack.Screen name="(noneMainScreens)" options={{ headerShown: false }} />
-                <Stack.Screen name="(unAuthStack)" options={{ headerShown: false }} />
-            </Stack>
-            <StatusBar style="auto" />
-        </ThemeProvider>
+        <GestureHandlerRootView style={styles.root}>
+            <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+                <Stack>
+                    <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                    <Stack.Screen name="(noneMainScreens)" options={{ headerShown: false }} />
+                    <Stack.Screen name="(unAuthStack)" options={{ headerShown: false }} />
+                </Stack>
+                <StatusBar style="auto" />
+            </ThemeProvider>
+        </GestureHandlerRootView>
     );
 }
+
+const styles = StyleSheet.create({
+    root: {
+        flex: 1,
+    },
+});
