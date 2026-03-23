@@ -5,6 +5,7 @@ from .database.database import engine
 from .jobs.job_scheduler import scheduler
 from .routes.essay_route import router as essay_router
 from .routes.user_route import router as user_router
+from .routes.write_essay_route import router as write_essay_router
 
 app = FastAPI()
 
@@ -13,3 +14,4 @@ scheduler.start()
 
 app.include_router(user_router)
 app.include_router(essay_router)
+app.include_router(write_essay_router)

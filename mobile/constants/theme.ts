@@ -17,6 +17,7 @@ export const Colors = {
         success: '#16A34A',
         warning: '#D97706',
         error: '#DC2626',
+        onError: '#FFFFFF',
     },
     dark: {
         text: '#F9FAFB',
@@ -31,6 +32,7 @@ export const Colors = {
         success: '#22C55E',
         warning: '#F59E0B',
         error: '#EF4444',
+        onError: '#FFFFFF',
     },
 };
 

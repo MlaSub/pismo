@@ -57,6 +57,16 @@ class UserResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class WriteEssayDraftResponse(BaseModel):
+    id: int
+    title: str | None = None
+    content: str | None = None
+    created_at: datetime.datetime
+    updated_at: datetime.datetime
+
+    model_config = {"from_attributes": True}
+
+
 class UserResponseNoUuid(BaseModel):
     id: int
     username: str
