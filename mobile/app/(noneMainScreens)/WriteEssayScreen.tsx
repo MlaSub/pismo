@@ -8,7 +8,7 @@ import ThemedScroll from '@/components/themed-scroll';
 import { ThemedText } from '@/components/themed-text';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { useWriteEssayStore } from '@/store/writeEssay';
-import { latinToRussianCyrillic } from '@/utils/latinToRussianCyrillic';
+import { latinToCyrillic } from '@/utils/latinToRussianCyrillic';
 
 const AUTOSAVE_INTERVAL = 1000;
 const CONTENT_INPUT_HEIGHT = 360;
@@ -82,9 +82,9 @@ function useWriteEssay() {
     const setEssayContent = useWriteEssayStore((s) => s.setEssayContent);
     const saveOrCreateDraft = useWriteEssayStore((s) => s.saveOrCreateDraft);
     const router = useRouter();
-
     const [title, setTitle] = useState(() => useWriteEssayStore.getState().essayTitle);
     const [content, setContent] = useState(() => useWriteEssayStore.getState().essayContent);
+    const [lastChar, setLastChar] = useState('');
     const [mode, setMode] = useState<WriteMode>('latin');
     const [isSaving, setIsSaving] = useState(false);
 
@@ -96,20 +96,29 @@ function useWriteEssay() {
         return () => clearInterval(interval);
     }, [title, content, setEssayTitle, setEssayContent]);
 
-    const handleContentChange = useCallback((text: string) => {
-        setContent(mode === 'cyrillic' ? latinToRussianCyrillic(text) : text);
-    }, [mode]);
+    const handleContentChange = useCallback((newText: string) => {
+        if (mode !== 'cyrillic' || newText.length <= content.length || !newText.startsWith(content)) {
+            setContent(newText);
+            setLastChar(newText.length > 0 ? newText[newText.length - 1] : '');
+            return;
+        }
+        let curr = content;
+        let last = lastChar ? lastChar : " ";
+        for (const char of newText.slice(content.length)) {
+            const { change, newValue } = latinToCyrillic(last, char);
+            curr = change ? curr.slice(0, -1) + newValue : curr + newValue;
+            if (newValue !== '') last = newValue;
+        }
+        setContent(curr);
+        setLastChar(last);
+    }, [mode, content, lastChar]);
 
     const handleSave = useCallback(async () => {
         setIsSaving(true);
         setEssayTitle(title);
         setEssayContent(content);
-        try {
-            await saveOrCreateDraft();
-            router.back();
-        } finally {
-            setIsSaving(false);
-        }
+        try { await saveOrCreateDraft(); router.back(); }
+        finally { setIsSaving(false); }
     }, [title, content, setEssayTitle, setEssayContent, saveOrCreateDraft, router]);
 
     const handleCopy = useCallback(async () => {
