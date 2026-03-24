@@ -17,6 +17,8 @@ Pismo is a monorepo with a Python/FastAPI backend and a React Native (Expo) mobi
 - `npm run ios` — start on iOS simulator
 - `npm run android` — start on Android emulator
 - `npm run web` — start web version
+- `npm test` — run Jest tests (headless, no simulator needed)
+- `npm run test:coverage` — run tests with coverage report
 
 ### Backend (run from `backend/`)
 - `uvicorn app.main:app --reload` — start FastAPI dev server
@@ -45,6 +47,8 @@ pismo/
 │       ├── routes/           # APIRouter modules
 │       └── schemas/          # Pydantic request/response schemas
 ├── mobile/               # Expo/React Native app (TypeScript)
+│   ├── jest.setup.ts         # Global Jest mocks (SecureStore, notifications, uuid, dropdown)
+│   └── __tests__/            # Test files mirroring source structure
 ├── dockerfiles/          # backend.dockerfile (Python 3.14-slim)
 ├── eslint.config.mjs     # ESLint flat config for mobile
 ├── pyproject.toml        # Ruff config for backend
@@ -106,3 +110,25 @@ Configured in `pyproject.toml`. Line length 88, target Python 3.12, auto-fix ena
 - Strict mode enabled
 - Unused vars must be prefixed with `_`
 - `@ts-ignore` and `@ts-nocheck` are banned; use `@ts-expect-error` with a description (10+ chars)
+
+## Mobile Testing
+
+Framework: Jest + `jest-expo` preset + React Native Testing Library. Tests are integration tests — they drive the UI and make real HTTP calls to the backend. Run locally only (no CI, no simulator).
+
+**Backend must be running:** `docker compose up`
+
+### Key conventions
+- Test files live in `mobile/__tests__/integration/` mirroring the source structure
+- Global mocks are in `mobile/jest.setup.ts` (loaded via `setupFiles` in `package.json`)
+- `expo-router` (`useRouter`) is mocked per test file — each test file defines its own `mockReplace = jest.fn()`
+- No mocking of API utilities (`createUser`, `backendCall`) — real HTTP calls are made
+- Use `Date.now()` in usernames to avoid unique constraint conflicts across runs
+- Reset Zustand stores in `beforeEach` with `useUserDataStore.setState({ uuid: null, ..., hydrated: true })` — do NOT call `clearAll()` as it hits SecureStore
+
+### Globally mocked modules (jest.setup.ts)
+These are native modules with no JS implementation — mocked purely to run in Node:
+- `expo-secure-store` — `getItemAsync`/`setItemAsync`/`deleteItemAsync` as `jest.fn()`
+- `expo-notifications` — returns `status: 'denied'` so push token is `null`
+- `expo-constants` — `isDevice: false`
+- `react-native-dropdown-picker` — renders a plain `View` with `testID="cefr-dropdown"`
+- `@react-native-async-storage/async-storage` — official jest mock via `moduleNameMapper`

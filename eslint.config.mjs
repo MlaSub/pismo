@@ -1,4 +1,5 @@
 import js from '@eslint/js';
+import jestPlugin from 'eslint-plugin-jest';
 import react from 'eslint-plugin-react';
 import reactNative from 'eslint-plugin-react-native';
 import reactHooks from 'eslint-plugin-react-hooks';
@@ -99,7 +100,7 @@ export default [
             'import/no-duplicates': 'error',
 
             'no-unused-vars': 'off',
-            'no-console': ['warn', { allow: ['warn', 'error'] }],
+            'no-console': ['warn', { allow: ['warn', 'error', 'info'] }],
             'require-await': 'warn',
             'no-param-reassign': 'error',
             'eqeqeq': ['warn', 'always'],
@@ -207,6 +208,28 @@ export default [
             }],
             '@typescript-eslint/no-empty-function': 'warn',
             '@typescript-eslint/no-inferrable-types': 'warn',
+        },
+    },
+    {
+        files: ['mobile/__tests__/**/*.{js,ts,tsx}', 'mobile/**/*.test.{js,ts,tsx}', 'mobile/jest.setup.ts'],
+        plugins: { jest: jestPlugin },
+        languageOptions: {
+            globals: {
+                ...jestPlugin.environments.globals.globals,
+                process: 'readonly',
+                require: 'readonly',
+            },
+        },
+        rules: {
+            'jest/no-disabled-tests': 'warn',
+            'jest/no-focused-tests': 'error',
+            'jest/no-identical-title': 'error',
+            'jest/valid-expect': 'error',
+            'jest/expect-expect': 'warn',
+            'jest/no-standalone-expect': 'error',
+            'jest/no-conditional-expect': 'error',
+            'jest/prefer-to-be': 'warn',
+            'jest/no-export': 'error',
         },
     },
     {
