@@ -17,6 +17,8 @@ Pismo is a monorepo with a Python/FastAPI backend and a React Native (Expo) mobi
 - `npm run ios` — start on iOS simulator
 - `npm run android` — start on Android emulator
 - `npm run web` — start web version
+- `npm test` — run Jest tests (headless, no simulator needed)
+- `npm run test:coverage` — run tests with coverage report
 
 ### Backend (run from `backend/`)
 - `uvicorn app.main:app --reload` — start FastAPI dev server
@@ -45,6 +47,9 @@ pismo/
 │       ├── routes/           # APIRouter modules
 │       └── schemas/          # Pydantic request/response schemas
 ├── mobile/               # Expo/React Native app (TypeScript)
+│   ├── jest.setup.ts         # Global Jest mocks (SecureStore, notifications, uuid, dropdown)
+│   ├── test-utils/           # Shared test helpers (registerUser, openNewEssay)
+│   └── __tests__/            # Test files mirroring source structure
 ├── dockerfiles/          # backend.dockerfile (Python 3.14-slim)
 ├── eslint.config.mjs     # ESLint flat config for mobile
 ├── pyproject.toml        # Ruff config for backend
@@ -62,7 +67,9 @@ Key env vars (in `.env.development`): `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POS
 Uses Expo Router (file-based routing):
 - `mobile/app/_layout.tsx` — Root Stack navigator
 - `mobile/app/(tabs)/_layout.tsx` — Tab navigator layout
-- `mobile/app/(tabs)/*.tsx` — Individual tab screens
+- `mobile/app/(tabs)/*.tsx` — Individual tab screens (e.g. `WriteEssayPage`, `AssignmentsList`, `profile`)
+- `mobile/app/(unAuthStack)/login.tsx` — Login / registration screen
+- `mobile/app/(noneMainScreens)/WriteEssayScreen.tsx` — Full-screen essay editor
 
 ### Path Aliases
 The mobile app uses `@/` as an alias for the `mobile/` directory (e.g., `import { useColorScheme } from '@/hooks/use-color-scheme'`).
@@ -106,3 +113,11 @@ Configured in `pyproject.toml`. Line length 88, target Python 3.12, auto-fix ena
 - Strict mode enabled
 - Unused vars must be prefixed with `_`
 - `@ts-ignore` and `@ts-nocheck` are banned; use `@ts-expect-error` with a description (10+ chars)
+
+## Mobile Testing
+
+Framework: Jest + `jest-expo` preset + React Native Testing Library. Tests are integration tests — they drive the UI and make real HTTP calls to the backend. Run locally only (no CI, no simulator).
+
+**Backend must be running:** `docker compose up`
+
+See `mobile/__tests__/TESTING.md` for full conventions: store reset patterns, mock setup, test utilities, and globally mocked modules.

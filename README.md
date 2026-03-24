@@ -167,3 +167,17 @@ npx expo start
 ```
 
 Press `i` to open in the iOS simulator (requires Xcode and the iOS simulator to be installed).
+
+### 4. Running Tests
+
+Tests are integration tests, they drive the UI and make real HTTP calls to the backend. The backend must be running before executing them.
+
+```bash
+# Start the backend first
+docker compose up
+
+# From the mobile/ directory
+npm test
+```
+
+Tests use [Jest](https://jestjs.io/) with the `jest-expo` preset and [React Native Testing Library](https://callstack.github.io/react-native-testing-library/). Native modules are mocked; all API calls are real.

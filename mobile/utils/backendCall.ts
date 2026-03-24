@@ -28,7 +28,7 @@ async function attemptRequest(config: AxiosRequestConfig, attempt: number): Prom
 }
 
 export async function backendCall({ method, urlExtension, body = null }: BackendCallParams) {
-    console.warn('Request URL:', `${apiBaseUrl}${urlExtension}`);
+    console.info('Request URL:', `${apiBaseUrl}${urlExtension}`);
     const { clearAll, getUuid } = useUserDataStore.getState();
     const uuid = getUuid();
 
