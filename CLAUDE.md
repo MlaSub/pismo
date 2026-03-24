@@ -48,6 +48,7 @@ pismo/
 │       └── schemas/          # Pydantic request/response schemas
 ├── mobile/               # Expo/React Native app (TypeScript)
 │   ├── jest.setup.ts         # Global Jest mocks (SecureStore, notifications, uuid, dropdown)
+│   ├── test-utils/           # Shared test helpers (registerUser, openNewEssay)
 │   └── __tests__/            # Test files mirroring source structure
 ├── dockerfiles/          # backend.dockerfile (Python 3.14-slim)
 ├── eslint.config.mjs     # ESLint flat config for mobile
@@ -66,7 +67,9 @@ Key env vars (in `.env.development`): `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POS
 Uses Expo Router (file-based routing):
 - `mobile/app/_layout.tsx` — Root Stack navigator
 - `mobile/app/(tabs)/_layout.tsx` — Tab navigator layout
-- `mobile/app/(tabs)/*.tsx` — Individual tab screens
+- `mobile/app/(tabs)/*.tsx` — Individual tab screens (e.g. `WriteEssayPage`, `AssignmentsList`, `profile`)
+- `mobile/app/(unAuthStack)/login.tsx` — Login / registration screen
+- `mobile/app/(noneMainScreens)/WriteEssayScreen.tsx` — Full-screen essay editor
 
 ### Path Aliases
 The mobile app uses `@/` as an alias for the `mobile/` directory (e.g., `import { useColorScheme } from '@/hooks/use-color-scheme'`).
@@ -117,18 +120,4 @@ Framework: Jest + `jest-expo` preset + React Native Testing Library. Tests are i
 
 **Backend must be running:** `docker compose up`
 
-### Key conventions
-- Test files live in `mobile/__tests__/integration/` mirroring the source structure
-- Global mocks are in `mobile/jest.setup.ts` (loaded via `setupFiles` in `package.json`)
-- `expo-router` (`useRouter`) is mocked per test file — each test file defines its own `mockReplace = jest.fn()`
-- No mocking of API utilities (`createUser`, `backendCall`) — real HTTP calls are made
-- Use `Date.now()` in usernames to avoid unique constraint conflicts across runs
-- Reset Zustand stores in `beforeEach` with `useUserDataStore.setState({ uuid: null, ..., hydrated: true })` — do NOT call `clearAll()` as it hits SecureStore
-
-### Globally mocked modules (jest.setup.ts)
-These are native modules with no JS implementation — mocked purely to run in Node:
-- `expo-secure-store` — `getItemAsync`/`setItemAsync`/`deleteItemAsync` as `jest.fn()`
-- `expo-notifications` — returns `status: 'denied'` so push token is `null`
-- `expo-constants` — `isDevice: false`
-- `react-native-dropdown-picker` — renders a plain `View` with `testID="cefr-dropdown"`
-- `@react-native-async-storage/async-storage` — official jest mock via `moduleNameMapper`
+See `mobile/__tests__/TESTING.md` for full conventions: store reset patterns, mock setup, test utilities, and globally mocked modules.

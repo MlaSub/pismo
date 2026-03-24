@@ -3,6 +3,7 @@ import { fireEvent, render, waitFor } from '@testing-library/react-native';
 
 import LoginScreen from '@/app/(unAuthStack)/login';
 import { useUserDataStore } from '@/store/userData';
+import { registerUser } from '@/test-utils/registerUser';
 
 const mockReplace = jest.fn();
 
@@ -24,18 +25,7 @@ describe('LoginScreen - Registration (Integration)', () => {
     });
 
     it('registers a new user and navigates to the main screen', async () => {
-        const username = `TestUser-${Date.now()}`;
-        const { getByText, getByPlaceholderText } = render(<LoginScreen />);
-
-        fireEvent.changeText(getByPlaceholderText('Enter your name'), username);
-        fireEvent.press(getByText('Continue'));
-
-        await waitFor(
-            () => {
-                expect(mockReplace).toHaveBeenCalledWith('/(tabs)/AssignmentsList');
-            },
-            { timeout: 10_000 },
-        );
+        const username = await registerUser(mockReplace);
 
         const { uuid, username: storedUsername, targetCefrLevel } = useUserDataStore.getState();
         expect(storedUsername).toBe(username);

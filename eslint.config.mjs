@@ -211,7 +211,7 @@ export default [
         },
     },
     {
-        files: ['mobile/__tests__/**/*.{js,ts,tsx}', 'mobile/**/*.test.{js,ts,tsx}', 'mobile/jest.setup.ts'],
+        files: ['mobile/__tests__/**/*.{js,ts,tsx}', 'mobile/**/*.test.{js,ts,tsx}', 'mobile/jest.setup.ts', 'mobile/test-utils/**/*.{js,ts,tsx}'],
         plugins: { jest: jestPlugin },
         languageOptions: {
             globals: {
