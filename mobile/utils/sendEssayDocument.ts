@@ -12,7 +12,7 @@ interface SendDocumentParams {
 const MAX_RETRIES = 2;
 
 async function sendEssayDocument({ uri, name, mimeType }: SendDocumentParams): Promise<{ process_id: number }> {
-    const uuid = useUserDataStore.getState().getUuid();
+    const { uuid } = useUserDataStore.getState();
 
     if (!uuid) {
         throw new Error('UUID is missing');

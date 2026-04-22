@@ -9,6 +9,7 @@ import { loginUser } from '../utils/loginUser'
 import { registerForPushNotifications } from '../utils/notifications'
 
 const UUID_KEY = 'user-uuid'
+const STORAGE_KEY = 'user-data'
 
 interface UserDataState {
     uuid: string | null
@@ -16,9 +17,6 @@ interface UserDataState {
     targetCefrLevel: CefrLevel | null
     pushToken: string | null
     hydrated: boolean
-    hasUuid: () => boolean
-    getUsername: () => string | null
-    getUuid: () => string | null
     registerUser: (username: string, targetCefrLevel: CefrLevel) => Promise<void>
     loginWithUuid: (uuid: string, username: string) => Promise<void>
     updateUserData: (username?: string, targetCefrLevel?: CefrLevel) => Promise<void>
@@ -26,85 +24,79 @@ interface UserDataState {
     clearAll: () => Promise<void>
 }
 
+type SetState = (partial: Partial<UserDataState>) => void
+type GetState = () => UserDataState
+
+async function tryGetPushToken(): Promise<string | null> {
+    try {
+        return await registerForPushNotifications()
+    } catch {
+        return null
+    }
+}
+
+const createActions = (set: SetState, get: GetState) => ({
+    registerUser: async (username: string, targetCefrLevel: CefrLevel) => {
+        const newUuid = uuidGenerator.v4() as string
+        const pushToken = await tryGetPushToken()
+        await createUser({ username, target_cefr_level: targetCefrLevel, push_token: pushToken })
+        await SecureStore.setItemAsync(UUID_KEY, newUuid)
+        set({ uuid: newUuid, username, targetCefrLevel, pushToken })
+    },
+    loginWithUuid: async (uuid: string, username: string) => {
+        await SecureStore.setItemAsync(UUID_KEY, uuid)
+        set({ uuid, username })
+        try {
+            const response = await loginUser({ username })
+            set({ targetCefrLevel: response.target_cefr_level })
+            await get().syncPushToken()
+        } catch (error) {
+            await SecureStore.deleteItemAsync(UUID_KEY)
+            set({ uuid: null, username: null, targetCefrLevel: null })
+            throw error
+        }
+    },
+    syncPushToken: async () => {
+        if (!get().uuid) return
+        const currentToken = await tryGetPushToken()
+        if (!currentToken || currentToken === get().pushToken) return
+        await updateUser({ push_token: currentToken })
+        set({ pushToken: currentToken })
+    },
+    updateUserData: async (username?: string, targetCefrLevel?: CefrLevel) => {
+        const response = await updateUser({
+            username,
+            target_cefr_level: targetCefrLevel,
+        })
+        set({
+            username: response.username,
+            targetCefrLevel: response.target_cefr_level,
+        })
+    },
+    clearAll: async () => {
+        await SecureStore.deleteItemAsync(UUID_KEY)
+        await AsyncStorage.removeItem(STORAGE_KEY)
+        set({ uuid: null, username: null, targetCefrLevel: null, pushToken: null })
+    },
+})
+
 export const useUserDataStore = create<UserDataState>()(
     persist(
-        // eslint-disable-next-line max-lines-per-function
         (set, get) => ({
             uuid: null,
             username: null,
             targetCefrLevel: null,
             pushToken: null,
             hydrated: false,
-            hasUuid: () => get().uuid !== null,
-            getUsername: () => get().username,
-            getUuid: () => get().uuid,
-            registerUser: async (username, targetCefrLevel) => {
-                const newUuid = uuidGenerator.v4() as string
-                let pushToken: string | null = null
-                try {
-                    pushToken = await registerForPushNotifications()
-                } catch {
-                    // push token unavailable (e.g. iOS simulator) — proceed without it
-                }
-                await SecureStore.setItemAsync(UUID_KEY, newUuid)
-                set({ uuid: newUuid, username, targetCefrLevel, pushToken })
-                try {
-                    await createUser({ username, target_cefr_level: targetCefrLevel, push_token: pushToken })
-                } catch (error) {
-                    await SecureStore.deleteItemAsync(UUID_KEY)
-                    set({ uuid: null, username: null, targetCefrLevel: null, pushToken: null })
-                    throw error
-                }
-            },
-            loginWithUuid: async (uuid, username) => {
-                await SecureStore.setItemAsync(UUID_KEY, uuid)
-                set({ uuid, username })
-                try {
-                    const response = await loginUser({ username })
-                    set({ targetCefrLevel: response.target_cefr_level })
-                    await get().syncPushToken()
-                } catch (error) {
-                    await SecureStore.deleteItemAsync(UUID_KEY)
-                    set({ uuid: null, username: null, targetCefrLevel: null })
-                    throw error
-                }
-            },
-            syncPushToken: async () => {
-                if (!get().uuid) return
-                let currentToken: string | null = null
-                try {
-                    currentToken = await registerForPushNotifications()
-                } catch {
-                    // push token unavailable (e.g. iOS simulator) — skip
-                }
-                if (!currentToken || currentToken === get().pushToken) return
-                await updateUser({ push_token: currentToken })
-                set({ pushToken: currentToken })
-            },
-            updateUserData: async (username, targetCefrLevel) => {
-                const response = await updateUser({
-                    username,
-                    target_cefr_level: targetCefrLevel,
-                })
-                set({
-                    username: response.username,
-                    targetCefrLevel: response.target_cefr_level,
-                })
-            },
-            clearAll: async () => {
-                await SecureStore.deleteItemAsync(UUID_KEY)
-                await AsyncStorage.removeItem('user-data')
-                set({ uuid: null, username: null, targetCefrLevel: null, pushToken: null })
-            },
+            ...createActions(set, get),
         }),
         {
-            name: 'user-data',
+            name: STORAGE_KEY,
             storage: createJSONStorage(() => AsyncStorage),
             partialize: (state) => ({ username: state.username, targetCefrLevel: state.targetCefrLevel, pushToken: state.pushToken }),
-            onRehydrateStorage: () => () => {
-                void SecureStore.getItemAsync(UUID_KEY).then((stored) => {
-                    useUserDataStore.setState({ uuid: stored ?? null, hydrated: true })
-                })
+            onRehydrateStorage: () => async () => {
+                const stored = await SecureStore.getItemAsync(UUID_KEY)
+                useUserDataStore.setState({ uuid: stored ?? null, hydrated: true })
             },
         }
     )

@@ -29,8 +29,7 @@ async function attemptRequest(config: AxiosRequestConfig, attempt: number): Prom
 
 export async function backendCall({ method, urlExtension, body = null }: BackendCallParams) {
     console.info('Request URL:', `${apiBaseUrl}${urlExtension}`);
-    const { clearAll, getUuid } = useUserDataStore.getState();
-    const uuid = getUuid();
+    const { clearAll, uuid } = useUserDataStore.getState();
 
     if (!uuid) {
         console.error("No UUID found.");
